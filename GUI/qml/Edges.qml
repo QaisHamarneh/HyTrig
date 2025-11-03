@@ -279,6 +279,11 @@ Column {
 
         }
 
+        ScrollBar.vertical: ScrollBar {
+            active: true
+            policy: ScrollBar.AsNeeded
+        }
+
     }
 
     Button {
