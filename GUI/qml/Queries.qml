@@ -18,7 +18,7 @@ Column {
 
     function add_query(query)
     {
-        if (Julia.is_valid_strategy(query, get_variables(), get_locations(), get_agents()))
+        if (is_valid_formula(query, "strategy"))
         {
             query_model.append({name: query});
             query_text_field.placeholderText = "Enter strategy formula";

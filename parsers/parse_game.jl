@@ -8,7 +8,6 @@ function parse_game(json_file)
         json_string = read(json_file, String)
         FileDict = JSON3.read(json_string)
         GameDict = FileDict["Game"]
-        game_name = GameDict["name"]
         agents = Set{Agent}([Symbol(agent) for agent in GameDict["agents"]])
         agents_names = Set{String}([agent for agent in GameDict["agents"]])
         actions = Set{Action}([Symbol(action) for action in GameDict["actions"]])
@@ -65,7 +64,7 @@ function parse_game(json_file)
                 for trigger in agents_triggers] 
                 for (agent, agents_triggers) in GameDict["triggers"])
 
-        game = Game(game_name, locations, initial_location, initial_valuation, agents, actions, edges, triggers, true)
+        game = Game(locations, initial_location, initial_valuation, agents, actions, edges, triggers, true)
 
         termination_conditions = Dict{String, Any}()
         termination_conditions["time-bound"] = Float64(FileDict["termination-conditions"]["time-bound"])

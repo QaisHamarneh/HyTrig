@@ -2,7 +2,6 @@ include("edge.jl")
 using DataStructures
 
 struct Game
-    name::String
     locations::Vector{Location}
     initial_location::Location
     initial_valuation::Valuation
@@ -12,8 +11,7 @@ struct Game
     triggers:: Dict{Agent, Vector{Constraint}}
 end
 
-function Game(  name::String,
-                locations::Vector{Location}, 
+function Game(  locations::Vector{Location}, 
                 initial_location::Location, 
                 initial_valuation::Valuation, 
                 agents::Set{Agent}, 
@@ -21,8 +19,7 @@ function Game(  name::String,
                 edges::Vector{Edge},
                 triggers:: Dict{Agent, Vector{Constraint}},
                 initiate::Bool)::Game
-    game = Game(name, 
-                locations, 
+    game = Game(locations, 
                 initial_location, 
                 initial_valuation, 
                 agents, 

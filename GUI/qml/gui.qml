@@ -1,3 +1,4 @@
+import Qt.labs.platform
 import QtQml.Models
 import QtQuick
 import QtQuick.Controls
@@ -41,147 +42,189 @@ ApplicationWindow {
         return false
     }
 
-    function get_variables() {
-        var vars = []
-        for (var i = 0; i < variables.variable_model.count; i++) {
-            vars.push(variables.variable_model.get(i).name)
-        }
-        return vars
-    }
-
-    function get_locations() {
-        var locs = []
-        for (var i = 0; i < locations.location_model.count; i++) {
-            if (locations.location_model.get(i).name != "") {
-                locs.push(locations.location_model.get(i).name)
+    function get_names(model) {
+        const names = []
+        for (var i = 0; i < model.count; i++) {
+            if (model.get(i).name != "") {
+                names.push(model.get(i).name)
             }
         }
-        return locs
+        return names
     }
 
-    function get_agents() {
-        var agns = []
-        for (var i = 0; i < agents.agent_model.count; i++) {
-            if (agents.agent_model.get(i).name != "") {
-                agns.push(agents.agent_model.get(i).name)
-            }
+    function get_elements(model) {
+        const elements = []
+        for (var i = 0; i < model.count; i++) {
+            elements.push(model.get(i))
         }
-        return agns
+        return elements
     }
 
-    Row {
+    function is_valid_formula(input, level) {
+        return Julia.is_valid_formula(input,
+            get_names(variables.variable_model), 
+            get_names(locations.location_model), 
+            get_names(agents.agent_model), 
+            level
+        )
+    }
+
+    function save() {
+        Julia.save_to_json({
+            "Agents": get_elements(agents.agent_model)
+        });
+    }
+
+    Column {
 
         anchors.fill: parent
         anchors.margins: 10
         spacing: 10
 
-        Column {
+        Row {
 
-            id: left_column
-            width: (parent.width - 2 * parent.spacing - page_separator.width) / 2
-            height: parent.height
-            spacing: 20
+            width: parent.width
+            height: parent.height - parent.spacing - menu.height
+            spacing: 10
+            clip: true
 
-            Row {
+            Column {
 
-                width: parent.width
-                spacing: 20
-                
-                Agents {
-                    id: agents
-                    width: (parent.width - parent.spacing) / 2
+                id: left_column
+                width: (parent.width - 2 * parent.spacing - page_separator.width) / 2
+                height: parent.height
+                spacing: 10
+
+                Row {
+
+                    width: parent.width
+                    spacing: 20
+                    
+                    Agents {
+                        id: agents
+                        width: (parent.width - parent.spacing) / 2
+                    }
+
+                    Actions {
+                        id: actions
+                        width: (parent.width - parent.spacing) / 2
+                    }
+
                 }
 
-                Actions {
-                    id: actions
-                    width: (parent.width - parent.spacing) / 2
+                Rectangle {
+                    width: parent.width
+                    height: 5
+                    radius: 4
+                    color: "black"
+                }
+
+                Variables {
+                    id: variables
+                    width: parent.width
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 5
+                    visible: agents.agent_model.count > 0
+                    radius: 4
+                    color: "black"
+                }
+
+                Triggers {
+                    id: triggers
+                    width: parent.width
+                    visible: agents.agent_model.count > 0
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 5
+                    radius: 4
+                    color: "black"
+                }
+
+                TerminationConditions {
+                    id: terminations
+                    width: parent.width
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 5
+                    radius: 4
+                    color: "black"
+                }
+
+                Queries {
+                    id: queries
+                    width: parent.width
                 }
 
             }
 
             Rectangle {
-                width: parent.width
-                height: 5
+                id: page_separator
+                width: 5
+                height: parent.height
                 radius: 4
                 color: "black"
             }
 
-            Variables {
-                id: variables
-                width: parent.width
-            }
+            Column {
 
-            Rectangle {
-                width: parent.width
-                height: 5
-                visible: agents.agent_model.count > 0
-                radius: 4
-                color: "black"
-            }
+                width: (parent.width - 2 * parent.spacing - page_separator.width) / 2
+                height: parent.height
+                spacing: 10
 
-            Triggers {
-                id: triggers
-                width: parent.width
-                visible: agents.agent_model.count > 0
-            }
+                Locations {
+                    id: locations
+                    width: parent.width
+                }
 
-            Rectangle {
-                width: parent.width
-                height: 5
-                radius: 4
-                color: "black"
-            }
+                Rectangle {
+                    width: parent.width
+                    height: 5
+                    radius: 4
+                    color: "black"
+                }
 
-            TerminationConditions {
-                id: terminations
-                width: parent.width
-            }
+                Edges {
+                    id: edges
+                    width: parent.width
+                }
 
-            Rectangle {
-                width: parent.width
-                height: 5
-                radius: 4
-                color: "black"
-            }
-
-            Queries {
-                id: queries
-                width: parent.width
             }
 
         }
 
-        Rectangle {
-            id: page_separator
-            width: 5
-            height: parent.height
-            radius: 4
-            color: "black"
-        }
+        Row {
 
-        Column {
+            id: menu
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 10
 
-            width: (parent.width - 2 * parent.spacing - page_separator.width) / 2
-            height: parent.height
-            spacing: 20
-
-            Locations {
-                id: locations
-                width: parent.width
+            Button {
+                id: save_button
+                width: verify_button.width
+                text: "Save"
+                onClicked: {
+                    save();
+                }
             }
 
-            Rectangle {
-                width: parent.width
-                height: 5
-                radius: 4
-                color: "black"
+            Button {
+                id: load_button
+                width: verify_button.width
+                text: "Load"
             }
 
-            Edges {
-                id: edges
-                width: parent.width
+            Button {
+                id: verify_button
+                text: "Verify"
             }
-
+            
         }
 
     }

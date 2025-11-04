@@ -95,13 +95,13 @@ Column {
             width: parent.width - parent.spacing - state_formula_text.width
             placeholderText: "Enter state formula"
             onAccepted: {
-                if (Julia.is_valid_state(text, get_variables(), get_locations()))
+                if (is_valid_formula(text, "state"))
                 {
                     placeholderText = "";
                     focus = false;
                 }
                 else {
-                    text: ""
+                    text = "";
                     placeholderText = "Invalid state formula";
                 }
             }

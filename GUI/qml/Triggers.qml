@@ -29,7 +29,7 @@ Column {
 
             function add_trigger(trigger)
             {
-                if (Julia.is_valid_constraint(trigger, get_variables()))
+                if (is_valid_formula(trigger, "constraint"))
                 {
                     agent_trigger_model.append({trigger: trigger});
                     trigger_text_field.placeholderText = "Enter trigger";

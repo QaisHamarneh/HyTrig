@@ -106,7 +106,7 @@ Column {
                     ) / 2
                     placeholderText: "Enter invariant"
                     onAccepted: {
-                        if (Julia.is_valid_constraint(text, get_variables()))
+                        if (is_valid_formula(text, "constraint"))
                         {
                             model.inv = text;
                             placeholderText = "";
@@ -177,7 +177,7 @@ Column {
                         width: parent.width - 2 * parent.spacing - location_name_text.width - initial_location.width
                         placeholderText: "Enter expression"
                         onAccepted: {
-                            if (Julia.is_valid_expression(text, get_variables()))
+                            if (is_valid_formula(text, "expression"))
                             {
                                 placeholderText = "";
                                 focus = false;

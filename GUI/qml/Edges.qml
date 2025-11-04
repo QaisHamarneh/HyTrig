@@ -160,7 +160,7 @@ Column {
                     width: parent.width - parent.spacing - guard_text.width
                     placeholderText: "Enter guard"
                     onAccepted: {
-                        if (Julia.is_valid_constraint(text, get_variables()))
+                        if (is_valid_formula(text, "expression"))
                         {
                             model.guard = text;
                             placeholderText = "";
@@ -261,7 +261,7 @@ Column {
                         width: parent.width - parent.spacing - guard_text.width
                         placeholderText: "Enter expression"
                         onAccepted: {
-                            if (Julia.is_valid_expression(text, get_variables()))
+                            if (is_valid_formula(text, "expression"))
                             {
                                 placeholderText = "";
                                 focus = false;
