@@ -8,13 +8,6 @@ import org.julialang
 Column {
 
     spacing: 10
-    property alias edge_model: edge_model
-
-    ListModel {
-
-        id: edge_model
-
-    }
 
     Text {
         width: parent.width
@@ -32,10 +25,17 @@ Column {
         model: edge_model
         delegate: Column {
 
+            id: edge
             width: edge_list.width
             spacing: 10
 
-            property int edge_index: index
+            function set_source(src) {
+                model.source = src;
+            }
+
+            function set_target(tar) {
+                model.target = tar;
+            }
 
                 Rectangle {
 
@@ -75,7 +75,7 @@ Column {
                         text: "-"
                         height: parent.height
                         onClicked: {
-                            edge_model.remove(index, 1);
+                            edge_model.removeRow(index);
                         }
                     }
 
@@ -92,7 +92,7 @@ Column {
                         placeholderText: "Enter name"
                         onAccepted: {
                             var regex = /^[A-Za-z]\w*$/;
-                            if (regex.test(text) && !has_name(text))
+                            if (regex.test(text) && !Julia.has_name(text))
                             {
                                 model.name = text;
                                 placeholderText = "";
@@ -109,14 +109,13 @@ Column {
 
                     id: edge_start_menu
                     width: (parent.width - 3 * parent.spacing - edge_remove.width) / 3
-                    enabled: locations.location_model.count > 0
 
-                    model: locations.location_model
+                    model: location_model
 
                     textRole: "name"
                     valueRole: "name"
                     onActivated: {
-                        edge_list.model.setProperty(edge_index, "start", currentValue);
+                        set_source(currentValue);
                     }
 
                     popup.closePolicy: Popup.CloseOnPressOutside
@@ -127,14 +126,13 @@ Column {
 
                     id: edge_end_menu
                     width: (parent.width - 3 * parent.spacing - edge_remove.width) / 3
-                    enabled: locations.location_model.count > 0
 
-                    model: locations.location_model
+                    model: location_model
 
                     textRole: "name"
                     valueRole: "name"
                     onActivated: {
-                        edge_list.model.setProperty(edge_index, "end", currentValue);
+                        set_target(currentValue);
                     }
                     popup.closePolicy: Popup.CloseOnPressOutside
 
@@ -192,9 +190,9 @@ Column {
                 ComboBox {
                     id: agent_menu
                     width: (parent.width - 3 * parent.spacing - edge_agent_text.width - edge_action_text.width) / 2
-                    enabled: agents.agent_model.count > 0
+                    enabled: agent_model.rowCount() > 0
 
-                    model: agents.agent_model
+                    model: agent_model
 
                     textRole: "name"
                     valueRole: "name"
@@ -215,9 +213,9 @@ Column {
                 ComboBox {
                     id: action_menu
                     width: (parent.width - 3 * parent.spacing - edge_agent_text.width - edge_action_text.width) / 2
-                    enabled: actions.action_model.count > 0
+                    enabled: action_model.rowCount() > 0
 
-                    model: actions.action_model
+                    model: action_model
 
                     textRole: "name"
                     valueRole: "name"
@@ -229,8 +227,8 @@ Column {
             }
 
             Text {
+                id: jump_text
                 text: "Jump"
-                visible: variables.variable_model.count > 0
             }
 
             ListView {
@@ -292,7 +290,7 @@ Column {
         Layout.fillHeight: false
         text: "+"
         onClicked: {
-            edge_model.append({name: "", start: "", end: "", guard: "", agent: "", action: ""});
+            edge_model.appendRow({name: "", source: "", target: "", guard: "", agent: "", action: ""});
         }
     }
 

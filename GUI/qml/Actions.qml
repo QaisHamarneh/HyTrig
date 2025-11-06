@@ -8,20 +8,13 @@ import org.julialang
 Column {
 
     spacing: 10
-    property alias action_model: action_model
-
-    ListModel {
-
-        id: action_model
-
-    }
 
     function add_action(action)
     {
         var regex = /^[A-Za-z][A-Za-z0-9_]*$/;
-        if (regex.test(action) && !has_name(action))
+        if (regex.test(action) && !Julia.has_name(action))
         {
-            action_model.append({name: action});
+            action_model.appendRow({name: action});
             action_text_field.placeholderText = "Enter name";
             action_text_field.text = "";
         }
@@ -62,7 +55,7 @@ Column {
                 text: "-"
                 height: parent.height
                 onClicked: {
-                    action_model.remove(index, 1);
+                    action_model.removeRow(index);
                 }
             }
 

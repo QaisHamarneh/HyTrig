@@ -8,20 +8,13 @@ import org.julialang
 Column {
 
     spacing: 10
-    property alias agent_model: agent_model
-
-    ListModel {
-
-        id: agent_model
-
-    }
 
     function add_agent(agent)
     {
         var regex = /^[A-Za-z]\w*$/;
-        if (regex.test(agent) && !has_name(agent))
+        if (regex.test(agent) && !Julia.has_name(agent))
         {
-            agent_model.append({name: agent});
+            agent_model.appendRow({name: agent});
             agent_text_field.placeholderText = "Enter name";
             agent_text_field.text = "";
         }
@@ -61,7 +54,7 @@ Column {
                 text: "-"
                 height: parent.height
                 onClicked: {
-                    agent_model.remove(index, 1);
+                    agent_model.removeRow(index);
                 }
             }
 

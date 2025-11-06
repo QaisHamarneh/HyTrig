@@ -8,17 +8,10 @@ import org.julialang
 Column {
 
     spacing: 10
-    property alias location_model: location_model
-
-    ListModel {
-
-        id: location_model
-
-    }
 
     function add_location()
     {
-        location_model.append({name: "", inv: "", initial: location_model.count == 0});
+        location_model.appendRow({name: "", inv: "", initial: location_model.rowCount() == 0});
     }
 
     ButtonGroup {
@@ -76,7 +69,7 @@ Column {
                     placeholderText: "Enter name"
                     onAccepted: {
                         var regex = /^[A-Za-z]\w*$/;
-                        if (regex.test(text) && !has_name(text))
+                        if (regex.test(text) && !Julia.has_name(text))
                         {
                             model.name = text;
                             placeholderText = "";
@@ -138,7 +131,7 @@ Column {
                     text: "-"
                     height: parent.height
                     onClicked: {
-                        location_model.remove(index, 1);
+                        location_model.removeRow(index);
                     }
                 }
 
@@ -146,7 +139,6 @@ Column {
 
             Text {
                 text: "Flow"
-                visible: variables.variable_model.count > 0
             }
 
             ListView {
@@ -158,7 +150,7 @@ Column {
                 clip: true
                 interactive: false
 
-                model: variables.variable_model
+                model: variable_model
                 delegate: Row {
 
                     width: flow.width

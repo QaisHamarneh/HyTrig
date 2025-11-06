@@ -8,23 +8,16 @@ import org.julialang
 Column {
 
     spacing: 10
-    property alias variable_model: variable_model
-
-    ListModel {
-
-        id: variable_model
-
-    }
 
     function add_variable(variable, value)
     {
         var name_regex = /^[A-Za-z]\w*$/;
         var value_regex = /(^-?(([1-9]\d*(\.\d+)?$)|(0\.\d*[1-9])$))|(^0$)/;
-        if (name_regex.test(variable) && !has_name(variable))
+        if (name_regex.test(variable) && !Julia.has_name(variable))
         {
             if (value_regex.test(value))
             {
-            variable_model.append({name: variable, value: value});
+            variable_model.appendRow({name: variable, value: value});
                 variable_name_text_field.text = "";
                 variable_value_text_field.text = "";
             }
@@ -94,7 +87,7 @@ Column {
                 text: "-"
                 height: parent.height
                 onClicked: {
-                    variable_model.remove(index, 1);
+                    variable_model.removeRow(index);
                 }
             }
         }

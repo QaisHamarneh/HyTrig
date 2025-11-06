@@ -18,61 +18,12 @@ ApplicationWindow {
     minimumHeight: 800
     maximumHeight: 2000
 
-    function has_name(name) {
-        for (var i = 0; i < agents.agent_model.count; i++) {
-            if (agents.agent_model.get(i).name === name)
-                return true
-        }
-        for (var i = 0; i < actions.action_model.count; i++) {
-            if (actions.action_model.get(i).name === name)
-                return true
-        }
-        for (var i = 0; i < variables.variable_model.count; i++) {
-            if (variables.variable_model.get(i).name === name)
-                return true
-        }
-        for (var i = 0; i < locations.location_model.count; i++) {
-            if (locations.location_model.get(i).name === name)
-                return true
-        }
-        for (var i = 0; i < edges.edge_model.count; i++) {
-            if (edges.edge_model.get(i).name === name)
-                return true
-        }
-        return false
-    }
-
-    function get_names(model) {
-        const names = []
-        for (var i = 0; i < model.count; i++) {
-            if (model.get(i).name != "") {
-                names.push(model.get(i).name)
-            }
-        }
-        return names
-    }
-
-    function get_elements(model) {
-        const elements = []
-        for (var i = 0; i < model.count; i++) {
-            elements.push(model.get(i))
-        }
-        return elements
-    }
-
     function is_valid_formula(input, level) {
-        return Julia.is_valid_formula(input,
-            get_names(variables.variable_model), 
-            get_names(locations.location_model), 
-            get_names(agents.agent_model), 
-            level
-        )
+        return Julia.is_valid_formula(input, level)
     }
 
     function save() {
-        Julia.save_to_json({
-            "Agents": get_elements(agents.agent_model)
-        });
+        Julia.save_to_json();
     }
 
     Column {
@@ -125,9 +76,10 @@ ApplicationWindow {
                 }
 
                 Rectangle {
+                    id: trigger_spacer
                     width: parent.width
                     height: 5
-                    visible: agents.agent_model.count > 0
+                    visible: agent_model.rowCount() > 0
                     radius: 4
                     color: "black"
                 }
@@ -135,7 +87,7 @@ ApplicationWindow {
                 Triggers {
                     id: triggers
                     width: parent.width
-                    visible: agents.agent_model.count > 0
+                    visible: agent_model.rowCount() > 0
                 }
 
                 Rectangle {
@@ -227,6 +179,11 @@ ApplicationWindow {
             
         }
 
+    }
+
+    onActiveFocusItemChanged: {
+        triggers.visible = agent_model.rowCount() > 0;
+        trigger_spacer.visible = agent_model.rowCount() > 0;
     }
 
 }

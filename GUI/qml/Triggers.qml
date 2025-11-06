@@ -21,7 +21,7 @@ Column {
         height: Math.min(contentHeight, 200)
         clip: true
 
-        model: agents.agent_model
+        model: agent_model
         delegate: Column {
 
             width: trigger_list.width
