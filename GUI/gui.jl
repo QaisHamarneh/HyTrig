@@ -1,7 +1,4 @@
-# include("../packages.jl")
-
-using Pkg
-Pkg.activate(".")
+include("../packages.jl")
 
 using Dates
 using JSON3
