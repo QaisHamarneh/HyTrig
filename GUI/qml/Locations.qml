@@ -10,9 +10,26 @@ Column {
     spacing: 10
     property alias location_list: location_list
 
-    function add_location()
+    function add_location(name)
     {
-        location_model.appendRow({name: "", inv: "", initial: location_model.rowCount() == 0});
+        var regex = /^[A-Za-z]\w*$/;
+        if (regex.test(name) && !Julia.has_name(name))
+        {
+            var flow = []
+            for (var i = 0; i < variable_model.rowCount(); i++) {
+                flow.push({
+                    var: variable_model.data(variable_model.index(i, 0), roles.variable_name),
+                    flow: ""
+                })
+            }
+            location_model.appendRow({name: name, inv: "", initial: location_model.rowCount() == 0, flow: flow});
+            location_name_text_field.text = "";
+            location_name_text_field.placeholderText = "Enter name";
+        }
+        else {
+            location_name_text_field.text = "";
+            location_name_text_field.placeholderText = "Invalid name";
+        }
     }
 
     ButtonGroup {
@@ -64,27 +81,16 @@ Column {
                     text: "Name"
                 }
 
-                TextField {
-                    id: location_name_text_field
+                Text {
+
                     width: (
                         parent.width - 5 * parent.spacing - location_name_text.width - location_inv_text.width - initial_location.width - location_remove.width
                     ) / 2
+                    height: parent.height
+                    horizontalAlignment: Text.AlignLeft
+                    verticalAlignment: Text.AlignVCenter
                     text: model.name
-                    placeholderText: "Enter name"
-                    onAccepted: {
-                        var regex = /^[A-Za-z]\w*$/;
-                        if (regex.test(text) && !Julia.has_name(text))
-                        {
-                            model.name = text;
-                            placeholderText = "";
-                            focus = false;
-                        }
-                        else {
-                            model.name = "";
-                            text = "";
-                            placeholderText = "Invalid name";
-                        }
-                    }
+                    color: "blue"
                 }
 
                 Text {
@@ -101,6 +107,7 @@ Column {
                     width: (
                         parent.width - 5 * parent.spacing - location_name_text.width - location_inv_text.width - initial_location.width - location_remove.width
                     ) / 2
+                    text: model.inv
                     placeholderText: "Enter invariant"
                     onAccepted: {
                         if (is_valid_formula(text, "constraint"))
@@ -135,7 +142,13 @@ Column {
                     text: "-"
                     height: parent.height
                     onClicked: {
-                        location_model.removeRow(index);
+                        if (model.initial && location_model.rowCount() != 1) {
+                            location_model.removeRow(index);
+                            location_model.setData(location_model.index(0, 0), true, roles.initial);
+                        }
+                        else {
+                            location_model.removeRow(index);
+                        }
                     }
                 }
 
@@ -154,7 +167,7 @@ Column {
                 clip: true
                 interactive: false
 
-                model: variable_model
+                model: flow
                 delegate: Row {
 
                     width: flow_list.width
@@ -165,17 +178,18 @@ Column {
                         width: location_name_text.width
                         horizontalAlignment: Text.AlignLeft
                         verticalAlignment: Text.AlignVCenter
-                        text: model.name
+                        text: model.var
                     }
 
                     TextField {
                         id: flow_text_field
                         width: parent.width - 2 * parent.spacing - location_name_text.width - initial_location.width
+                        text: model.flow
                         placeholderText: "Enter expression"
                         onAccepted: {
                             if (is_valid_formula(text, "expression"))
                             {
-                                flow_model.appendRow({loc: location_name, var: model.name, flow: text});
+                                model.flow = text;
                                 placeholderText = "";
                                 focus = false;
                             }
@@ -192,21 +206,37 @@ Column {
 
         }
 
-        ScrollBar.vertical: ScrollBar {
-            active: true
-            policy: ScrollBar.AsNeeded
-        }
-
     }
 
-    Button {
-        Material.foreground: "white"
-        Material.background: Material.DeepOrange
-        Layout.fillHeight: false
-        text: "+"
-        onClicked: {
-            locations.add_location();
+    Row {
+
+        width: parent.width
+        spacing: 10
+
+        TextField {
+            id: location_name_text_field
+
+            width: parent.width - parent.spacing - add_location_button.width
+            placeholderText: "Enter name"
+            onAccepted: {
+                locations.add_location(text);
+            }
+            onActiveFocusChanged: {
+                placeholderText = "Enter name";
+            }
         }
+
+        Button {
+            id: add_location_button
+            Material.foreground: "white"
+            Material.background: Material.DeepOrange
+            Layout.fillHeight: false
+            text: "+"
+            onClicked: {
+                locations.add_location(location_name_text_field.text);
+            }
+        }
+
     }
 
 }

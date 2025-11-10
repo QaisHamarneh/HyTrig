@@ -24,6 +24,10 @@ ApplicationWindow {
         return Julia.is_valid_formula(input, level)
     }
 
+    function is_saveable() {
+        return true; //TODO: check invalid params
+    }
+
     function save(path) {
         Julia.save_to_json(path);
     }
@@ -217,7 +221,9 @@ ApplicationWindow {
                 width: verify_button.width
                 text: "Save"
                 onClicked: {
-                    save_dialog.open();
+                    if (is_saveable()) {
+                        save_dialog.open();
+                    }
                 }
             }
 

@@ -36,10 +36,18 @@ mutable struct QLocation
     name::String
     inv::String
     initial::Bool
+    flow::JuliaItemModel
+end
+
+function QLocation(name, inv, initial, flow::AbstractArray)
+    return QLocation(name, inv, initial, JuliaItemModel([QFlow(QML.value(f)["var"], QML.value(f)["flow"]) for f in flow]))
+end
+
+function setflow!(location_model, flow, row, col)
+    location_model[row].flow = JuliaItemModel([QFlow(QML.value(f)["var"], QML.value(f)["flow"]) for f in flow])
 end
 
 mutable struct QFlow
-    loc::String
     var::String
     flow::String
 end
@@ -51,10 +59,20 @@ mutable struct QEdge
     guard::String
     agent::String
     action::String
+    jump::JuliaItemModel
+end
+
+function QEdge(name, source, target, guard, agent, action, jump::AbstractArray)
+    return QEdge(name, source, target, guard, agent, action,
+        JuliaItemModel([QJump(QML.value(j)["var"], QML.value(j)["jump"]) for j in jump])
+    )
+end
+
+function setjump!(edge_model, jump, row, col)
+    edge_model[row].jump = JuliaItemModel([QJump(QML.value(j)["var"], QML.value(j)["jump"]) for j in jump])
 end
 
 mutable struct QJump
-    edge::String
     var::String
     jump::String
 end
@@ -63,17 +81,38 @@ mutable struct QQuery
     name::String
 end
 
+roles = JuliaPropertyMap()
+
 agent_list::Vector{QAgent} = []
 agent_model::JuliaItemModel = JuliaItemModel(agent_list)
 setsetter!(agent_model, settriggers!, roleindex(agent_model, "triggers"))
 
 action_list::Vector{QAction} = []
+
 variable_list::Vector{QVariable} = []
+variable_model::JuliaItemModel = JuliaItemModel(variable_list)
+roles["variable_name"] = roleindex(variable_model, "name")
+
 location_list::Vector{QLocation} = []
+location_model::JuliaItemModel = JuliaItemModel(location_list)
+setsetter!(location_model, setflow!, roleindex(location_model, "flow"))
+roles["initial"] = roleindex(location_model, "initial")
+roles["flow"] = roleindex(location_model, "flow")
+
+temp_flow_list::Vector{QFlow} = []
+temp_flow_model::JuliaItemModel = JuliaItemModel(temp_flow_list)
+roles["flow_variable_name"] = roleindex(temp_flow_model, "var")
+
 edge_list::Vector{QEdge} = []
+edge_model::JuliaItemModel = JuliaItemModel(edge_list)
+setsetter!(edge_model, setjump!, roleindex(edge_model, "jump"))
+roles["jump"] = roleindex(edge_model, "jump")
+
+temp_jump_list::Vector{QJump} = []
+temp_jump_model::JuliaItemModel = JuliaItemModel(temp_jump_list)
+roles["jump_variable_name"] = roleindex(temp_jump_model, "var")
+
 query_list::Vector{QQuery} = []
-flow_list::Vector{QFlow} = []
-jump_list::Vector{QJump} = []
 
 termination_conditions = QML.QQmlPropertyMap()
 termination_conditions["time-bound"] = ""
@@ -152,15 +191,15 @@ function load_from_json(path)
     empty!(location_list)
     empty!(edge_list)
     empty!(query_list)
-    empty!(flow_list)
-    empty!(jump_list)
 
     game = data["Game"]
     for loc in game["locations"]
-        push!(location_list, QLocation(loc["name"], loc["invariant"], loc["initial"]))
-        for (var, flow) in loc["flow"]
-            push!(flow_list, QFlow(loc["name"], String(var), flow))
-        end
+        push!(
+            location_list,
+            QLocation(loc["name"], loc["invariant"], loc["initial"],
+                JuliaItemModel([QFlow(String(var), flow) for (var, flow) in loc["flow"]])
+            )
+        )
     end
     for (var, value) in game["initial_valuation"]
         push!(variable_list, QVariable(String(var), value))
@@ -173,11 +212,13 @@ function load_from_json(path)
         push!(action_list, QAction(action_name))
     end
     for edge in game["edges"]
-        push!(edge_list, QEdge(edge["name"], edge["source"], edge["target"], edge["guard"],
-                               String(first(keys(edge["decision"]))), first(values(edge["decision"]))))
-        for (var, jump) in edge["jumps"]
-            push!(jump_list, QJump(edge["name"], String(var), jump))
-        end
+        push!(
+            edge_list,
+            QEdge(edge["name"], edge["source"], edge["target"], edge["guard"],
+                String(first(keys(edge["decision"]))), first(values(edge["decision"])),
+                JuliaItemModel([QJump(String(var), jump) for (var, jump) in edge["jump"]])
+            )
+        )
     end
     for query_name in data["queries"]
         push!(query_list, QQuery(query_name))
@@ -193,7 +234,7 @@ function _get_location_json(loc::QLocation)
         "name" => loc.name,
         "invariant" => loc.inv,
         "flow" => Dict(
-            flow.var => flow.flow for flow in flow_list if flow.loc == loc.name
+            loc.flow[i].var => loc.flow[i].flow for i in 1:length(loc.flow)
         ),
         "initial" => loc.initial
     )
@@ -208,8 +249,8 @@ function _get_edge_json(edge::QEdge)
         "decision" => Dict(
             edge.agent => edge.action
         ),
-        "jumps" => Dict(
-            jump.var => jump.jump for jump in jump_list if jump.edge == edge.name
+        "jump" => Dict(
+            edge.jump[i].var => edge.jump[i].jump for i in 1:length(edge.jump)
         )
     )
 end
@@ -220,14 +261,13 @@ qml_file = joinpath(dirname(@__FILE__), "qml", "gui.qml")
 
 loadqml(
     qml_file,
+    roles = roles,
     agent_model = agent_model,
     action_model = JuliaItemModel(action_list),
-    variable_model = JuliaItemModel(variable_list),
-    location_model = JuliaItemModel(location_list),
-    edge_model = JuliaItemModel(edge_list),
+    variable_model = variable_model,
+    location_model = location_model,
+    edge_model = edge_model,
     query_model = JuliaItemModel(query_list),
-    flow_model = JuliaItemModel(flow_list),
-    jump_model = JuliaItemModel(jump_list),
     termination_conditions = termination_conditions
 )
 
