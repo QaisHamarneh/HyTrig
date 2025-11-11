@@ -1,124 +1,89 @@
-include("../packages.jl")
+"""
+    GUI
+
+This script runs a GUI with QML. The GUI allows to create, edit, save, load and verify hybrid games with triggers.
+
+# Functions:
+- `has_name(name)::Bool`: check if a name is already in use
+- `is_valid_formula(formula, level)::Bool`: check if a formula is valid at a given parse level
+- `save_to_json(path)`: save the current game to a JSON file
+- `load_from_json(path)`: load a game from a JSON file
+
+# Authors:
+- Moritz Maas
+"""
+
+# include("../packages.jl")
+
+using Pkg
+Pkg.activate(".")
 
 using Dates
 using JSON3
 using QML
 
+include("QObjects.jl")
 include("../parsers/parser.jl")
 
-mutable struct QTrigger
-    name::String
-end
-
-mutable struct QAgent
-    name::String
-    triggers::JuliaItemModel
-end
-
-function QAgent(name, triggers::AbstractArray)
-  return QAgent(name, JuliaItemModel([QTrigger(QML.value(t)["name"]) for t in triggers]))
-end
-
-function settriggers!(agent_model, triggers, row, col)
-    agent_model[row].triggers = JuliaItemModel([QTrigger(QML.value(t)["name"]) for t in triggers])
-end
-
-mutable struct QAction
-    name::String
-end
-
-mutable struct QVariable
-    name::String
-    value::String
-end
-
-mutable struct QLocation
-    name::String
-    inv::String
-    initial::Bool
-    flow::JuliaItemModel
-end
-
-function QLocation(name, inv, initial, flow::AbstractArray)
-    return QLocation(name, inv, initial, JuliaItemModel([QFlow(QML.value(f)["var"], QML.value(f)["flow"]) for f in flow]))
-end
-
-function setflow!(location_model, flow, row, col)
-    location_model[row].flow = JuliaItemModel([QFlow(QML.value(f)["var"], QML.value(f)["flow"]) for f in flow])
-end
-
-mutable struct QFlow
-    var::String
-    flow::String
-end
-
-mutable struct QEdge
-    name::String
-    source::String
-    target::String
-    guard::String
-    agent::String
-    action::String
-    jump::JuliaItemModel
-end
-
-function QEdge(name, source, target, guard, agent, action, jump::AbstractArray)
-    return QEdge(name, source, target, guard, agent, action,
-        JuliaItemModel([QJump(QML.value(j)["var"], QML.value(j)["jump"]) for j in jump])
-    )
-end
-
-function setjump!(edge_model, jump, row, col)
-    edge_model[row].jump = JuliaItemModel([QJump(QML.value(j)["var"], QML.value(j)["jump"]) for j in jump])
-end
-
-mutable struct QJump
-    var::String
-    jump::String
-end
-
-mutable struct QQuery
-    name::String
-end
+# Declare synchronized models and roles
 
 roles = JuliaPropertyMap()
 
+# Declare agent model
 agent_list::Vector{QAgent} = []
 agent_model::JuliaItemModel = JuliaItemModel(agent_list)
 setsetter!(agent_model, settriggers!, roleindex(agent_model, "triggers"))
 
+# Declare action model
 action_list::Vector{QAction} = []
 
+# Declare variable model
 variable_list::Vector{QVariable} = []
 variable_model::JuliaItemModel = JuliaItemModel(variable_list)
 roles["variable_name"] = roleindex(variable_model, "name")
 
+# Declare location model
 location_list::Vector{QLocation} = []
 location_model::JuliaItemModel = JuliaItemModel(location_list)
 setsetter!(location_model, setflow!, roleindex(location_model, "flow"))
 roles["initial"] = roleindex(location_model, "initial")
 roles["flow"] = roleindex(location_model, "flow")
 
+# Temporarily create a flow model to get the role index for variable names
 temp_flow_list::Vector{QFlow} = []
 temp_flow_model::JuliaItemModel = JuliaItemModel(temp_flow_list)
 roles["flow_variable_name"] = roleindex(temp_flow_model, "var")
 
+# Declare edge model
 edge_list::Vector{QEdge} = []
 edge_model::JuliaItemModel = JuliaItemModel(edge_list)
 setsetter!(edge_model, setjump!, roleindex(edge_model, "jump"))
 roles["jump"] = roleindex(edge_model, "jump")
 
+# Temporarily create a jump model to get the role index for variable names
 temp_jump_list::Vector{QJump} = []
 temp_jump_model::JuliaItemModel = JuliaItemModel(temp_jump_list)
 roles["jump_variable_name"] = roleindex(temp_jump_model, "var")
 
+# Declare query model
 query_list::Vector{QQuery} = []
 
-termination_conditions = QML.QQmlPropertyMap()
+# Declare termination conditions
+termination_conditions = JuliaPropertyMap()
 termination_conditions["time-bound"] = ""
 termination_conditions["max-steps"] = ""
 termination_conditions["state-formula"] = ""
 
+# Declare callable functions for QML
+
+"""
+    has_name(name)::Bool
+
+Check if `name` is already used by an agent, action, location, variable or edge.
+
+# Arguments
+- `name`: the name to check
+"""
 function has_name(name)::Bool
     name = String(name)
 
@@ -134,7 +99,16 @@ function has_name(name)::Bool
     return false
 end
 
-function is_valid_formula(formula, level)
+"""
+    is_valid_formula(formula, level)::Bool
+
+Check if `formula` is a valid formula at level `level`.
+
+# Arguments
+- `formula`: the formula to check
+- `level`: the parse level to use
+"""
+function is_valid_formula(formula, level)::Bool
     formula = String(formula)
     level = eval(Symbol(level))
     if !(level isa ParseLevel)
@@ -153,6 +127,14 @@ function is_valid_formula(formula, level)
     end
 end
 
+"""
+    save_to_json(path)
+
+Save the current game to a JSON file at `path`.
+
+# Arguments
+- `path`: the path to save the JSON file to
+"""
 function save_to_json(path)
     path = replace(String(path),  r"^(file:\/{2})" => "")
     data = Dict(
@@ -179,6 +161,14 @@ function save_to_json(path)
     end
 end
 
+"""
+    load_from_json(path)
+
+Load a game from a JSON file at `path`.
+
+# Arguments
+- `path`: the path to load the JSON file from
+"""
 function load_from_json(path)
     path = replace(String(path),  r"^(file:\/{2})" => "")
     data = open(path, "r") do f
@@ -254,6 +244,8 @@ function _get_edge_json(edge::QEdge)
         )
     )
 end
+
+# Build and run QML GUI
 
 @qmlfunction has_name is_valid_formula save_to_json load_from_json
 
