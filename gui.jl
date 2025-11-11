@@ -13,7 +13,7 @@ This script runs a GUI with QML. The GUI allows to create, edit, save, load and 
 - Moritz Maas
 """
 
-include("../packages.jl")
+include("packages.jl")
 
 # using Pkg
 # Pkg.activate(".")
@@ -22,8 +22,8 @@ using Dates
 using JSON3
 using QML
 
-include("QObjects.jl")
-include("../parsers/syntax_parsers/parser.jl")
+include("GUI/QObjects.jl")
+include("parsers/syntax_parsers/parser.jl")
 
 # Declare synchronized models and roles
 
@@ -249,7 +249,7 @@ end
 
 @qmlfunction has_name is_valid_formula save_to_json load_from_json
 
-qml_file = joinpath(dirname(@__FILE__), "qml", "gui.qml")
+qml_file = joinpath(dirname(@__FILE__), "GUI", "qml", "gui.qml")
 
 loadqml(
     qml_file,
