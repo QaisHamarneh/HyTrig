@@ -23,7 +23,7 @@ using JSON3
 using QML
 
 include("QObjects.jl")
-include("../parsers/parser.jl")
+include("../parsers/syntax_parsers/parser.jl")
 
 # Declare synchronized models and roles
 
