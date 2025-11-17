@@ -8,7 +8,6 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for termination conditions
@@ -22,6 +21,7 @@ Column {
     Text {
         width: parent.width
         text: "Termination conditions"
+        color: "white"
     }
 
     // Time bound and max steps row
@@ -36,6 +36,7 @@ Column {
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             text: "Time bound"
+            color: "white"
         }
 
         // Time bound input field
@@ -86,6 +87,7 @@ Column {
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             text: "Max steps"
+            color: "white"
         }
 
         // Max steps input field
@@ -144,6 +146,7 @@ Column {
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             text: "State formula"
+            color: "white"
         }
 
         // State formula input field

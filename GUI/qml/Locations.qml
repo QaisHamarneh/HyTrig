@@ -8,7 +8,6 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for locations
@@ -58,6 +57,7 @@ Column {
     Text {
         width: parent.width
         text: "Locations"
+        color: "white"
     }
 
     // List of locations
@@ -100,6 +100,7 @@ Column {
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                     text: "Name"
+                    color: "white"
                 }
 
                 // Location name
@@ -112,7 +113,7 @@ Column {
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                     text: model.name
-                    color: "blue"
+                    color: "white"
                 }
 
                 Text {
@@ -122,6 +123,7 @@ Column {
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                     text: "Invariant"
+                    color: "white"
                 }
 
                 // Invariant input field
@@ -201,6 +203,7 @@ Column {
 
             Text {
                 text: "Flow"
+                color: "white"
             }
 
             // Flow list
@@ -227,6 +230,7 @@ Column {
                         verticalAlignment: Text.AlignVCenter
                         text: model.var
                         clip: true
+                        color: "white"
                     }
 
                     // Flow expression input field
@@ -299,8 +303,6 @@ Column {
         // Add location button
         Button {
             id: add_location_button
-            Material.foreground: "white"
-            Material.background: Material.DeepOrange
             Layout.fillHeight: false
             text: "+"
             onClicked: {

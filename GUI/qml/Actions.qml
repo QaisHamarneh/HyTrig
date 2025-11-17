@@ -8,7 +8,6 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for actions
@@ -46,6 +45,7 @@ Column {
     Text {
         width: parent.width
         text: "Actions"
+        color: "white"
     }
 
     // List of actions
@@ -67,7 +67,7 @@ Column {
                 id: action_name
                 width: parent.width - parent.spacing - action_button.width
                 text: model.name
-                color: "blue"
+                color: "white"
 
             }
 
@@ -112,8 +112,6 @@ Column {
         Button {
             id: action_button
             Layout.fillHeight: false
-            Material.foreground: "white"
-            Material.background: Material.DeepOrange
             text: "+"
             onClicked: {
                 actions.add_action(action_text_field.text);

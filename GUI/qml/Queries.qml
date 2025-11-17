@@ -8,7 +8,6 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for queries
@@ -38,6 +37,7 @@ Column {
     Text {
         width: parent.width
         text: "Queries"
+        color: "white"
     }
 
 
@@ -63,7 +63,7 @@ Column {
                 text: model.name
                 horizontalAlignment: Text.AlignLeft
                 verticalAlignment: Text.AlignVCenter
-                color: "blue"
+                color: "white"
 
             }
 
@@ -114,8 +114,6 @@ Column {
         Button {
             id: query_button
             Layout.fillHeight: false
-            Material.foreground: "white"
-            Material.background: Material.DeepOrange
             text: "+"
             onClicked: {
                 queries.add_query(query_text_field.text)

@@ -8,7 +8,6 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for variables
@@ -62,6 +61,7 @@ Column {
     Text {
         width: parent.width
         text: "Variables"
+        color: "white"
     }
 
     // Property name row
@@ -74,11 +74,13 @@ Column {
             width: (parent.width - parent.spacing) / 2
             horizontalAlignment: Text.AlignLeft
             text: "Name"
+            color: "white"
         }
         Text {
             width: (parent.width - parent.spacing) / 2
             horizontalAlignment: Text.AlignLeft
             text: "Initial value"
+            color: "white"
         }
     }
 
@@ -101,7 +103,7 @@ Column {
                 width: (parent.width - 2 * parent.spacing - variable_button.width) / 2
                 horizontalAlignment: Text.AlignLeft
                 text: model.name
-                color: "blue"
+                color: "white"
             }
 
             // Variable value
@@ -109,7 +111,7 @@ Column {
                 width: (parent.width - 2 * parent.spacing - variable_button.width) / 2
                 horizontalAlignment: Text.AlignLeft
                 text: model.value
-                color: "blue"
+                color: "white"
             }
 
             // Remove variable button
@@ -185,8 +187,6 @@ Column {
         Button {
             id: variable_button
             Layout.fillHeight: false
-            Material.foreground: "white"
-            Material.background: Material.DeepOrange
             text: "+"
             onClicked: {
                 variables.add_variable(variable_name_text_field.text, variable_value_text_field.text);

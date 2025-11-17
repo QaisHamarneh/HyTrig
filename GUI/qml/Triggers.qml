@@ -8,7 +8,6 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for triggers
@@ -20,6 +19,7 @@ Column {
     Text {
         width: parent.width
         text: "Triggers"
+        color: "white"
     }
 
     // List of agents
@@ -77,6 +77,7 @@ Column {
             Text {
                 width: parent.width
                 text: model.name
+                color: "white"
             }
 
             // List of triggers for the current agent
@@ -98,7 +99,7 @@ Column {
                     Text {
                         width: parent.width -parent.spacing - trigger_button.width
                         text: model.name
-                        color: "blue"
+                        color: "white"
                     }
 
                     // Remove trigger button
@@ -134,8 +135,6 @@ Column {
                 // Add trigger button
                 Button {
                     id: trigger_button
-                    Material.foreground: "white"
-                    Material.background: Material.DeepOrange
                     Layout.fillHeight: false
                     text: "+"
                     onClicked: {

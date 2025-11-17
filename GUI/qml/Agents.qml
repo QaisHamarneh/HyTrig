@@ -8,7 +8,6 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for agents
@@ -48,6 +47,7 @@ Column {
     Text {
         width: parent.width
         text: "Agents"
+        color: "white"
     }
 
     // List of agents
@@ -68,7 +68,7 @@ Column {
 
                 width: parent.width - parent.spacing - agent_button.width
                 text: model.name
-                color: "blue"
+                color: "white"
 
             }
 
@@ -115,8 +115,6 @@ Column {
         Button {
             id: agent_button
             Layout.fillHeight: false
-            Material.foreground: "white"
-            Material.background: Material.DeepOrange
             text: "+"
             onClicked: {
                 agents.add_agent(agent_text_field.text);

@@ -10,7 +10,6 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
-import QtQuick.Controls.Material
 import org.julialang
 
 // HyTrig application window
@@ -100,12 +99,10 @@ ApplicationWindow {
     }
 
     // Load failure dialog
-    Dialog {
+    MessageDialog {
         id: load_fail_dialog
-        anchors.centerIn: parent
-        title: "Failed to load from file"
-        modal: true
-        standardButtons: Dialog.Ok
+        buttons: MessageDialog.Ok
+        text: "Could not load from file"
     }
 
     // Window-filling column

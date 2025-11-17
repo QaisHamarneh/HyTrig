@@ -8,7 +8,6 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for edges
@@ -53,6 +52,7 @@ Column {
     Text {
         width: parent.width
         text: "Edges"
+        color: "white"
     }
 
     // List of edges
@@ -159,18 +159,21 @@ Column {
                     width: (parent.width - 3 * parent.spacing - edge_remove.width) / 3
                     horizontalAlignment: Text.AlignLeft
                     text: "Name"
+                    color: "white"
                 }
 
                 Text {
                     width: (parent.width - 3 * parent.spacing - edge_remove.width) / 3
                     horizontalAlignment: Text.AlignLeft
                     text: "Start location"
+                    color: "white"
                 }
 
                 Text {
                     width: (parent.width - 3 * parent.spacing - edge_remove.width) / 3
                     horizontalAlignment: Text.AlignLeft
                     text: "End location"
+                    color: "white"
                 }
 
             }
@@ -188,7 +191,7 @@ Column {
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                     text: model.name
-                    color: "blue"
+                    color: "white"
                 }
 
                 // Source location selector
@@ -255,6 +258,7 @@ Column {
                     verticalAlignment: Text.AlignVCenter
                     id: guard_text
                     text: "Guard"
+                    color: "white"
                 }
 
                 // Guard input field
@@ -312,6 +316,7 @@ Column {
                     verticalAlignment: Text.AlignVCenter
                     id: edge_agent_text
                     text: "Agent"
+                    color: "white"
                 }
 
                 // Agent selector
@@ -340,6 +345,7 @@ Column {
                     verticalAlignment: Text.AlignVCenter
                     id: edge_action_text
                     text: "Action"
+                    color: "white"
                 }
 
                 // Action selector
@@ -366,6 +372,7 @@ Column {
             Text {
                 id: jump_text
                 text: "Jump"
+                color: "white"
             }
 
             // Jump list
@@ -391,6 +398,7 @@ Column {
                         horizontalAlignment: Text.AlignLeft
                         verticalAlignment: Text.AlignVCenter
                         text: model.var
+                        color: "white"
                     }
 
                     // Jump expression input field
@@ -467,8 +475,6 @@ Column {
         // Add edge button
         Button {
             id: edge_add_button
-            Material.foreground: "white"
-            Material.background: Material.DeepOrange
             Layout.fillHeight: false
             text: "+"
             onClicked: {
