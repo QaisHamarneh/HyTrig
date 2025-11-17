@@ -24,11 +24,18 @@ Column {
     function add_action(action)
     {
         var regex = /^[A-Za-z][A-Za-z0-9_]*$/;
-        if (regex.test(action) && !Julia.has_name(action))
+        if (regex.test(action))
         {
-            action_model.appendRow({name: action});
-            action_text_field.placeholderText = "Enter name";
-            action_text_field.text = "";
+            if (!Julia.has_name(action))
+            {
+                action_model.appendRow({name: action});
+                action_text_field.placeholderText = "Enter name";
+                action_text_field.text = "";
+            }
+            else {
+                action_text_field.placeholderText = "Name in use";
+                action_text_field.text = "";
+            }
         }
         else {
             action_text_field.placeholderText = "Invalid name";

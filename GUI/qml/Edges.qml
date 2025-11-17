@@ -24,18 +24,25 @@ Column {
     function add_edge(name)
     {
         var regex = /^[A-Za-z]\w*$/;
-        if (regex.test(name) && !Julia.has_name(name))
+        if (regex.test(name))
         { 
-            var jump = []
-            for (var i = 0; i < variable_model.rowCount(); i++) {
-                jump.push({
-                    var: variable_model.data(variable_model.index(i, 0), roles.variable_name),
-                    jump: ""
-                })
+            if (!Julia.has_name(name))
+            {
+                var jump = []
+                for (var i = 0; i < variable_model.rowCount(); i++) {
+                    jump.push({
+                        var: variable_model.data(variable_model.index(i, 0), roles.variable_name),
+                        jump: ""
+                    })
+                }
+                edge_model.appendRow({name: name, source: "", target: "", guard: "", agent: "", action: "", jump: jump});
+                edge_name_text_field.text = "";
+                edge_name_text_field.placeholderText = "Enter name";
             }
-            edge_model.appendRow({name: name, source: "", target: "", guard: "", agent: "", action: "", jump: jump});
-            edge_name_text_field.text = "";
-            edge_name_text_field.placeholderText = "Enter name";
+            else {
+                edge_name_text_field.text = "";
+                edge_name_text_field.placeholderText = "Name in use";
+            }
         }
         else {
             edge_name_text_field.text = "";

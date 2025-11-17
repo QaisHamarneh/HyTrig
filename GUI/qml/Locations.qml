@@ -24,18 +24,25 @@ Column {
     function add_location(name)
     {
         var regex = /^[A-Za-z]\w*$/;
-        if (regex.test(name) && !Julia.has_name(name))
+        if (regex.test(name))
         {
-            var flow = []
-            for (var i = 0; i < variable_model.rowCount(); i++) {
-                flow.push({
-                    var: variable_model.data(variable_model.index(i, 0), roles.variable_name),
-                    flow: ""
-                })
+            if (!Julia.has_name(name))
+            {
+                var flow = []
+                for (var i = 0; i < variable_model.rowCount(); i++) {
+                    flow.push({
+                        var: variable_model.data(variable_model.index(i, 0), roles.variable_name),
+                        flow: ""
+                    })
+                }
+                location_model.appendRow({name: name, inv: "", initial: location_model.rowCount() == 0, flow: flow});
+                location_name_text_field.text = "";
+                location_name_text_field.placeholderText = "Enter name";
             }
-            location_model.appendRow({name: name, inv: "", initial: location_model.rowCount() == 0, flow: flow});
-            location_name_text_field.text = "";
-            location_name_text_field.placeholderText = "Enter name";
+            else {
+                location_name_text_field.text = "";
+                location_name_text_field.placeholderText = "Name in use";
+            }
         }
         else {
             location_name_text_field.text = "";

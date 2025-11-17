@@ -24,13 +24,20 @@ Column {
     function add_agent(agent)
     {
         var regex = /^[A-Za-z]\w*$/;
-        if (regex.test(agent) && !Julia.has_name(agent))
+        if (regex.test(agent))
         {
-            agent_model.appendRow({name: agent, triggers: []});
-            agent_text_field.placeholderText = "Enter name";
-            agent_text_field.text = "";
-            triggers.visible = agent_model.rowCount() > 0;
-            trigger_spacer.visible = agent_model.rowCount() > 0;
+            if (!Julia.has_name(agent))
+            {
+                agent_model.appendRow({name: agent, triggers: []});
+                agent_text_field.placeholderText = "Enter name";
+                agent_text_field.text = "";
+                triggers.visible = agent_model.rowCount() > 0;
+                trigger_spacer.visible = agent_model.rowCount() > 0;
+            }
+            else {
+                agent_text_field.placeholderText = "Name in use";
+                agent_text_field.text = "";
+            }
         }
         else {
             agent_text_field.placeholderText = "Invalid name";
