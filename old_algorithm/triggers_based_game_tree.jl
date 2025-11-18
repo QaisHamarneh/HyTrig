@@ -1,6 +1,6 @@
-include("time_to_trigger.jl")
+include("../game_tree/time_to_trigger.jl")
 include("../game_semantics/transitions.jl")
-include("tree.jl")
+include("old_tree.jl")
 include("../hybrid_atl/logic.jl")
 
 using IterTools
@@ -14,7 +14,7 @@ struct TriggerPath
     path_to_trigger::Vector{Configuration}
 end
 
-function check_termination(node::Node, total_steps, termination_conditions):: Bool
+function check_termination(node::OldNode, total_steps, termination_conditions):: Bool
     
     if node.config.global_clock >= termination_conditions["time-bound"] || 
         total_steps >= termination_conditions["max-steps"] ||
@@ -26,7 +26,7 @@ function check_termination(node::Node, total_steps, termination_conditions):: Bo
     
 end
 
-function build_game_tree(game::Game, termination_conditions, queries::Vector{Strategy_Formula}):: Node
+function build_game_tree(game::Game, termination_conditions, queries::Vector{Strategy_Formula}):: OldNode
     constraints = get_all_constraints(queries ∪ State_Formula[termination_conditions["state-formula"]])
     return build_complete_game_tree(game, constraints, termination_conditions)
 end
@@ -35,15 +35,15 @@ function build_complete_game_tree(game::Game,
                         constraints::Set{Constraint},
                         termination_conditions;
                         current_config::Union{Configuration,Nothing} = nothing, 
-                        parent::Union{Node, Nothing} = nothing,
+                        parent::Union{OldNode, Nothing} = nothing,
                         reaching_decision::Union{Pair{Agent, Action}, Nothing} = nothing,
-                        total_steps::Int64 = 0):: Node
+                        total_steps::Int64 = 0):: OldNode
     if current_config === nothing
         current_config = initial_configuration(game)
     end
 
     remaining_time = termination_conditions["time-bound"] - current_config.global_clock
-    current_node = Node(parent, reaching_decision, false, current_config, false, [])
+    current_node = OldNode(parent, reaching_decision, false, current_config, false, [])
 
     if check_termination(current_node, total_steps, termination_conditions)
         current_node.terminal_node = true
@@ -72,7 +72,7 @@ function build_complete_game_tree(game::Game,
                     config_after_edge = discrete_transition(config_after_trigger, edge)
                     path_node = current_node
                     for path_config in trigger_path.path_to_trigger
-                        child_node = Node(path_node, Pair(agent, action), true, path_config, false, [])
+                        child_node = OldNode(path_node, Pair(agent, action), true, path_config, false, [])
                         child_node.terminal_node = check_termination(child_node, total_steps, termination_conditions)
                         push!(path_node.children, child_node)
                         path_node = child_node

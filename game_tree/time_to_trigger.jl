@@ -1,7 +1,6 @@
 using DifferentialEquations
 include("../essential_definitions/evolution.jl")
 include("../game_semantics/configuration.jl")
-include("tree.jl")
 
 
 
