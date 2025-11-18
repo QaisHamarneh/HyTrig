@@ -10,6 +10,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
+import QtQuick.Controls.Material
 import org.julialang
 
 // HyTrig application window
@@ -25,6 +26,9 @@ ApplicationWindow {
     minimumHeight: 800
     maximumHeight: 2000
     title: "HyTrig"
+
+    Material.theme: Material.Dark
+    Material.accent: Material.Orange
 
     /**
     * Check if a formula is valid on a given parse level
