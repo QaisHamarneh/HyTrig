@@ -28,8 +28,10 @@ ApplicationWindow {
     title: "HyTrig"
 
     Material.theme: Material.Dark
-    Material.accent: Material.Orange
+    Material.accent: Material.Blue
     Material.foreground: Material.color(Material.Grey, Material.Shade100)
+
+    property string file_path: ""
 
     /**
     * Check if a formula is valid on a given parse level
@@ -55,6 +57,7 @@ ApplicationWindow {
     */
     function save(path) {
         Julia.save_to_json(path);
+        file_path = path;
     }
 
     /**
@@ -68,6 +71,8 @@ ApplicationWindow {
             load_fail_dialog.open();
             return;
         }
+
+        file_path = path;
 
         // Refresh ListViews
         variables.variable_list.model = [];
@@ -256,8 +261,23 @@ ApplicationWindow {
             // Save button
             Button {
                 id: save_button
-                width: verify_button.width
+                width: save_as_button.width
                 text: "Save"
+                onClicked: {
+                    if (is_saveable()) {
+                        if (file_path != "") {
+                            save(file_path);
+                        } else {
+                            save_dialog.open();
+                        }
+                    }
+                }
+            }
+
+            // Save as button
+            Button {
+                id: save_as_button
+                text: "Save as"
                 onClicked: {
                     if (is_saveable()) {
                         save_dialog.open();
@@ -268,7 +288,7 @@ ApplicationWindow {
             // Load button
             Button {
                 id: load_button
-                width:verify_button.width
+                width: save_as_button.width
                 text: "Load"
                 onClicked: {
                     load_dialog.open();
@@ -278,6 +298,7 @@ ApplicationWindow {
             // Verify button
             Button {
                 id: verify_button
+                width: save_as_button.width
                 text: "Verify"
                 onClicked: {
                     verify();

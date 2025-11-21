@@ -71,9 +71,7 @@ Column {
             }
 
             // Remove action button
-            Button {
-                text: "-"
-                height: parent.height
+            RemoveButton {
                 onClicked: {
                     action_model.removeRow(index);
                 }
@@ -106,10 +104,8 @@ Column {
         }
 
         // Add action button
-        Button {
+        AddButton {
             id: action_button
-            Layout.fillHeight: false
-            text: "+"
             onClicked: {
                 actions.add_action(action_text_field.text);
             }

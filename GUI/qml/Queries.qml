@@ -79,9 +79,7 @@ Column {
             }
 
             // Remove query button
-            Button {
-                text: "-"
-                height: parent.height
+            RemoveButton {
                 onClicked: {
                     query_model.removeRow(index);
                 }
@@ -109,10 +107,8 @@ Column {
         }
 
         // Add formula button
-        Button {
+        AddButton {
             id: query_button
-            Layout.fillHeight: false
-            text: "+"
             onClicked: {
                 queries.add_query(query_text_field.text)
             }

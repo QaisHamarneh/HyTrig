@@ -123,9 +123,7 @@ Column {
             }
 
             // Remove variable button
-            Button {
-                text: "-"
-                height: parent.height
+            RemoveButton {
                 onClicked: {
                     // Remove variable from flows
                     for (var i = 0; i < location_model.rowCount(); i++) {
@@ -188,10 +186,8 @@ Column {
         }
 
         // Add variable button
-        Button {
+        AddButton {
             id: variable_button
-            Layout.fillHeight: false
-            text: "+"
             onClicked: {
                 variables.add_variable(variable_name_text_field.text, variable_value_text_field.text);
             }

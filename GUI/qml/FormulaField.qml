@@ -19,12 +19,14 @@ TextField {
     property var set_role: (function(x) {return;})
     property string level: ""
 
+    property color default_color: Material.color(Material.Blue)
     property color accepted_color: Material.color(Material.Green)
     property color error_color: Material.color(Material.Red)
 
     property bool had_focus: false
 
     placeholderText: default_text
+    placeholderTextColor: default_color
     font.pointSize: 16
 
     function check() {

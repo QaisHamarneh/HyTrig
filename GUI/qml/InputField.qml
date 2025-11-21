@@ -15,7 +15,7 @@ TextField {
 
     property string default_text: ""
 
-    property color default_color: Material.color(Material.Grey, Material.Shade600)
+    property color default_color: Material.color(Material.Blue)
     property color error_color: Material.color(Material.Red)
 
     placeholderText: default_text

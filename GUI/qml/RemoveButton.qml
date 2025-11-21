@@ -1,6 +1,6 @@
 /**
-* @file DataText.qml
-* @brief GUI component for data.
+* @file RemoveButton.qml
+* @brief GUI component for a button that removes an element from a JuliaItemModel.
 * @authors Moritz Maas
 */
 
@@ -11,10 +11,9 @@ import QtQuick.Layouts
 import QtQuick.Controls.Material
 import org.julialang
 
-Text {
+Button {
 
-    text: ""
-    color: Material.color(Material.Blue)
-    font.pointSize: 16
+    height: parent.height
+    text: "-"
 
 }

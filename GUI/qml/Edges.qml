@@ -221,10 +221,8 @@ Column {
                 }
 
                 // Edge remove button
-                Button {
+                RemoveButton {
                     id: edge_remove
-                    text: "-"
-                    height: parent.height
                     onClicked: {
                         edge_model.removeRow(index);
                     }
@@ -394,10 +392,8 @@ Column {
         }
 
         // Add edge button
-        Button {
+        AddButton {
             id: edge_add_button
-            Layout.fillHeight: false
-            text: "+"
             onClicked: {
                 edges.add_edge(edge_name_text_field.text);
             }

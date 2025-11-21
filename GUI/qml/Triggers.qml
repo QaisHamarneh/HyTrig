@@ -95,9 +95,7 @@ Column {
                     }
 
                     // Remove trigger button
-                    Button {
-                        text: "-"
-                        height: parent.height
+                    RemoveButton {
                         onClicked: {
                             triggers.removeRow(index);
                         }
@@ -125,10 +123,8 @@ Column {
                 }
 
                 // Add trigger button
-                Button {
+                AddButton {
                     id: trigger_button
-                    Layout.fillHeight: false
-                    text: "+"
                     onClicked: {
                         add_trigger(trigger_text_field.text);
                     }

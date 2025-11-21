@@ -142,10 +142,8 @@ Column {
                 }
 
                 // Remove location button
-                Button {
+                RemoveButton {
                     id: location_remove
-                    text: "-"
-                    height: parent.height
                     onClicked: {
                         if (model.initial && location_model.rowCount() != 1) {
                             location_model.removeRow(index);
@@ -227,10 +225,8 @@ Column {
         }
 
         // Add location button
-        Button {
+        AddButton {
             id: add_location_button
-            Layout.fillHeight: false
-            text: "+"
             onClicked: {
                 locations.add_location(location_name_text_field.text);
             }

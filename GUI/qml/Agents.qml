@@ -72,9 +72,7 @@ Column {
             }
 
             // Remove agent button
-            Button {
-                text: "-"
-                height: parent.height
+            RemoveButton {
                 onClicked: {
                     agent_model.removeRow(index);
                     triggers.visible = agent_model.rowCount() > 0;
@@ -109,10 +107,8 @@ Column {
         }
 
         // Add agent button
-        Button {
+        AddButton {
             id: agent_button
-            Layout.fillHeight: false
-            text: "+"
             onClicked: {
                 agents.add_agent(agent_text_field.text);
             }
