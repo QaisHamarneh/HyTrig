@@ -15,9 +15,9 @@ import org.julialang
 Column {
 
     spacing: 10
-    property alias time_bound: time_bound_text_field.text
-    property alias max_steps: max_steps_text_field.text
-    property alias state_formula: state_formula_text_field.text
+    property alias time_bound: time_bound_text_field
+    property alias max_steps: max_steps_text_field
+    property alias state_formula: state_formula_text_field
 
     TitleText {
         width: parent.width

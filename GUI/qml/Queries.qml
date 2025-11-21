@@ -38,11 +38,14 @@ Column {
         }
     }
 
+    TreeWindow {
+        id: tree_window
+    }
+
     TitleText {
         width: parent.width
         text: "Queries"
     }
-
 
     // List of queries
     ListView {
@@ -75,6 +78,10 @@ Column {
                 tristate: false
                 checkable: false
                 checkState: model.result ? Qt.Checked : Qt.Unchecked
+                
+                onClicked: {
+                    tree_window.show();
+                }
 
             }
 

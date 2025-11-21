@@ -53,6 +53,7 @@ roles["flow"] = roleindex(location_model, "flow")
 temp_flow_list::Vector{QFlow} = []
 temp_flow_model::JuliaItemModel = JuliaItemModel(temp_flow_list)
 roles["flow_variable_name"] = roleindex(temp_flow_model, "var")
+roles["flow_expression"] = roleindex(temp_flow_model, "flow")
 
 # Declare edge model
 edge_list::Vector{QEdge} = []
@@ -64,6 +65,7 @@ roles["jump"] = roleindex(edge_model, "jump")
 temp_jump_list::Vector{QJump} = []
 temp_jump_model::JuliaItemModel = JuliaItemModel(temp_jump_list)
 roles["jump_variable_name"] = roleindex(temp_jump_model, "var")
+roles["jump_expression"] = roleindex(temp_jump_model, "jump")
 
 # Declare query model
 query_list::Vector{QQuery} = []
@@ -73,6 +75,9 @@ termination_conditions = JuliaPropertyMap()
 termination_conditions["time-bound"] = ""
 termination_conditions["max-steps"] = ""
 termination_conditions["state-formula"] = ""
+
+# Declare last parsed game tree
+game_tree::Union{NodeOnDemand, Nothing} = Nothing()
 
 # Declare callable functions for QML
 
@@ -292,7 +297,7 @@ function verify()
     )
     queries::Vector{Strategy_Formula} = [parse(query.name, bindings, strategy) for query in query_list]
 
-    results, _ = evaluate_queries(game, term_conds, queries)
+    results, game_tree = evaluate_queries(game, term_conds, queries)
 
     for (i, r) in enumerate(results)
         query_list[i].verified = true

@@ -45,10 +45,40 @@ ApplicationWindow {
 
     /**
     * Check if the current game is savable
-    * @return {Boolean}         True, if current state is savable
+    * @return {Boolean}         True, if current game is savable
     */
     function is_saveable() {
-        return true; //TODO: check invalid params
+        if (termination_conditions["time-bound"] == "") {
+            terminations.time_bound.placeholderTextColor = terminations.time_bound.error_color;
+            save_fail_dialog.informativeText = "Time bound is invalid."
+            save_fail_dialog.open();
+            return false;
+        }
+        if (termination_conditions["max-steps"] == "") {
+            terminations.max_steps.placeholderTextColor = terminations.max_steps.error_color;
+            save_fail_dialog.informativeText = "Max steps is invalid."
+            save_fail_dialog.open();
+            return false;
+        }
+        for (var i = 0; i < location_model.rowCount(); i++) {
+            var flow_model = location_model.data(location_model.index(i, 0), roles.flow);
+            for (var j = 0; j < flow_model.rowCount(); j++) {
+                if (flow_model.data(flow_model.index(j, 0), roles.flow_expression) == "") {
+                    save_fail_dialog.informativeText = "Empty flow expressions are invalid."
+                    return false;
+                }
+            }
+        }
+        for (var i = 0; i < edge_model.rowCount(); i++) {
+            var jump_model = edge_model.data(edge_model.index(i, 0), roles.jump);
+            for (var j = 0; j < jump_model.rowCount(); j++) {
+                if (jump_model.data(jump_model.index(j, 0), roles.jump_expression) == "") {
+                    save_fail_dialog.informativeText = "Empty jump expressions are invalid."
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -91,9 +121,9 @@ ApplicationWindow {
         queries.query_list.model = query_model;
 
         // Refresh termination conditions
-        terminations.time_bound = termination_conditions["time-bound"];
-        terminations.max_steps = termination_conditions["max-steps"];
-        terminations.state_formula = termination_conditions["state-formula"];
+        terminations.time_bound.text = termination_conditions["time-bound"];
+        terminations.max_steps.text = termination_conditions["max-steps"];
+        terminations.state_formula.text = termination_conditions["state-formula"];
 
         // Refresh visibility of triggers
         triggers.visible = agent_model.rowCount() > 0;
@@ -110,9 +140,18 @@ ApplicationWindow {
 
     // Load failure dialog
     MessageDialog {
+        id: save_fail_dialog
+        buttons: MessageDialog.Ok
+        title: "Save error"
+        text: "Could not save current game."
+    }
+
+    // Load failure dialog
+    MessageDialog {
         id: load_fail_dialog
         buttons: MessageDialog.Ok
-        text: "Could not load from file"
+        title: "Load error"
+        text: "Could not load from file."
     }
 
     // Window-filling column
