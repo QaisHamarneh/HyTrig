@@ -12,7 +12,8 @@ import QtQuick.Controls.Material
 import org.julialang
 
 Button {
-    
+
     height: parent.height
     text: "+"
+
 }

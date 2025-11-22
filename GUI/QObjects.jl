@@ -19,6 +19,7 @@ This file contains all QML object definitions needed to create QML models for th
 - Moritz Maas
 """
 
+include("../model_checking/node.jl")
 
 # abstract types for all objects used in QML models
 abstract type QObject
@@ -247,4 +248,38 @@ mutable struct QQuery <: QObject
     name::String
     verified::Bool
     result::Bool
+end
+
+"""
+    QNode <: QObject
+
+A tree node used in QML models.
+
+    QNode(TODO)
+
+TODO
+"""
+mutable struct QNode <: QObject
+    location::String
+    agent::String
+    action::String
+    time::Float64
+end
+
+function QNode(node::NodeOnDemand)::QNode
+    if isnothing(node.reaching_decision)
+        return QNode(
+            string(node.config.location.name),
+            "",
+            "",
+            node.config.global_clock
+        )
+    else
+        return QNode(
+            string(node.config.location.name),
+            string(node.reaching_decision[1]),
+            string(node.reaching_decision[2]),
+            trunc(node.config.global_clock, digits = 4)
+        )
+    end
 end

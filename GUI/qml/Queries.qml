@@ -64,6 +64,7 @@ Column {
 
             // Query formula
             DataText {
+                id: query_text
                 width: model.verified ? (parent.width - 2 * parent.spacing - checkbox.width - query_button.width) : (parent.width - parent.spacing - query_button.width)
                 text: model.name
                 horizontalAlignment: Text.AlignLeft
@@ -74,12 +75,15 @@ Column {
             CheckBox {
 
                 id: checkbox
+                height: query_text.height
                 visible: model.verified
                 tristate: false
                 checkable: false
                 checkState: model.result ? Qt.Checked : Qt.Unchecked
                 
                 onClicked: {
+                    tree_window.node_list.model = [];
+                    tree_window.node_list.model = node_model;
                     tree_window.show();
                 }
 

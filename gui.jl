@@ -79,6 +79,10 @@ termination_conditions["state-formula"] = ""
 # Declare last parsed game tree
 game_tree::Union{NodeOnDemand, Nothing} = Nothing()
 
+# Declare node model
+node_list::Vector{QNode} = []
+node_model::JuliaItemModel = JuliaItemModel(node_list)
+
 # Declare callable functions for QML
 
 """
@@ -177,7 +181,7 @@ Load a game from a JSON file at `path`.
 # Arguments
 - `path`: the path to load the JSON file from
 """
-function load_from_json(path):: Bool
+function load_from_json(path)::Bool
     path = replace(String(path),  r"^(file:\/{2})" => "")
     data = open(path, "r") do f
         JSON3.read(f)
@@ -297,13 +301,74 @@ function verify()
     )
     queries::Vector{Strategy_Formula} = [parse(query.name, bindings, strategy) for query in query_list]
 
+    global game_tree
     results, game_tree = evaluate_queries(game, term_conds, queries)
+
+    empty!(node_list)
+
+    if !isnothing(game_tree)
+        push!(node_list, QNode(game_tree))
+        game_tree = NodeOnDemand(
+            Nothing(),
+            Nothing(),
+            true,
+            Nothing(),
+            [game_tree]
+        )
+        game_tree.children[1].parent = game_tree
+    end
 
     for (i, r) in enumerate(results)
         query_list[i].verified = true
         query_list[i].result = r
     end
-    println("Verification complete.")
+end
+
+"""
+    up_tree()::Bool
+
+Set the node model to the current nodes parent layer.
+"""
+function up_tree()::Bool
+    global game_tree
+    if isnothing(game_tree) || isnothing(game_tree.parent)
+        return false
+    end
+
+    empty!(node_list)
+
+    game_tree = game_tree.parent
+
+    for child in game_tree.children
+        push!(node_list, QNode(child))
+    end
+    return true
+end
+
+"""
+    down_tree(i)::Bool
+
+Set the node model to the current nodes child layer of child `i`.
+"""
+function down_tree(i)::Bool
+    global game_tree
+    if isempty(node_list) || isnothing(game_tree)
+        return false
+    end
+
+    i = Int(i)
+
+    empty!(node_list)
+
+    if 0 < i <= length(game_tree.children)
+        game_tree = game_tree.children[i]
+        for child in game_tree.children
+            push!(node_list, QNode(child))
+        end
+        return true
+    else
+        return false
+    end
 end
 
 function _get_location_json(loc::QLocation)
@@ -330,7 +395,7 @@ end
 
 # Build and run QML GUI
 
-@qmlfunction has_name is_valid_formula save_to_json load_from_json verify
+@qmlfunction has_name is_valid_formula save_to_json load_from_json verify up_tree down_tree
 
 qml_file = joinpath(dirname(@__FILE__), "GUI", "qml", "gui.qml")
 
@@ -343,7 +408,8 @@ loadqml(
     location_model = location_model,
     edge_model = edge_model,
     query_model = JuliaItemModel(query_list),
-    termination_conditions = termination_conditions
+    termination_conditions = termination_conditions,
+    node_model = node_model
 )
 
 exec()

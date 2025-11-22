@@ -130,6 +130,9 @@ ApplicationWindow {
         trigger_spacer.visible = agent_model.rowCount() > 0;
     }
 
+    /**
+    * Verify the current game.
+    */
     function verify() {
         Julia.verify();
 
