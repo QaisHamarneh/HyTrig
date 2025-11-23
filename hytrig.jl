@@ -9,11 +9,11 @@ example = ARGS[1]
 t0 = time();
 
 if example == "1"
-    game, termination_conditions, queries = parse_game("examples/bouncing_ball.json")
+    game, termination_conditions, queries, queries_text = parse_game("examples/bouncing_ball.json")
 elseif example == "2"
-    game, termination_conditions, queries = parse_game("examples/3_players_1_ball.json")
+    game, termination_conditions, queries, queries_text = parse_game("examples/3_players_1_ball.json")
 elseif example == "3"
-    game, termination_conditions, queries = parse_game("examples/player_in_middle.json")
+    game, termination_conditions, queries, queries_text = parse_game("examples/player_in_middle.json")
 else 
     error("Example not recognized")
 end
@@ -31,7 +31,13 @@ tree_depth = depth_of_tree(game_tree)
 
 println("*************************")
 println("Time to parse = $(t2 - t1)")
-println("queries = ", queries)
+for i in 1:length(queries)
+    if results[i]
+        println("Query: ", queries_text[i], " --- Holds")
+    else
+        println("Query: ", queries_text[i], " --- Does not hold")
+    end
+end
 println("*************************")
 println("***** On the fly ********")
 println("Nodes = ", nodes_count, " Passive Nodes = ", passive_nodes, " Depth = ", tree_depth)

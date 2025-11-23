@@ -10,34 +10,36 @@ end
 
 struct Node
     parent::Union{Node, Nothing}
-    reaching_decision::Union{Pair{Agent, Action}, Nothing}
+    reaching_decision::Union{Pair{Agent, Action}, Pair{Agent, <:Constraint}, Nothing}
     reaching_trigger::Union{TriggerPath, Nothing}
+    level::Int32
+    trigger_number::Int32
+    passive_number::Int32
     passive_node::Bool
     config::Configuration
     children::Vector{Node}
 end
 
-function count_nodes(root::Node)::Int
-    # println("Level: ", level, " - Location ", root.config.location.name, " - Valuation: ",  root.config.valuation)
-    # println("Level: ", root.config.global_clock, " - Location ", root.config.location.name, " - Valuation: ",  root.config.valuation)
+function count_nodes(root::Node, level=0)::Int
+    println("Level: ", root.level,  " - Trigger: ", root.trigger_number, " - Passive: ", root.passive_number, " - ", root.config.location.name, " - ",  root.config.valuation)
     @match root begin
-        Node(_, _, _, _, _, []) => 1
-        Node(_, _, _, _, _, children) => 1 + sum(count_nodes(child) for child in children)
+        Node(_, _, _, _, _, _, _, _, []) => 1
+        Node(_, _, _, _, _, _, _, _, children) => 1 + sum(count_nodes(child, level+1) for child in children)
     end
 end
 
 function count_passive_nodes(root::Node)::Int
     # println("Level: ", level, " - Location ", root.config.location.name, " - Valuation: ",  root.config.valuation)
     @match root begin
-        Node(_, _, _, passive, _, []) => Int(passive)
-        Node(_, _, _, passive, _, children) => Int(passive) + sum(count_passive_nodes(child) for child in children)
+        Node(_, _, _, _, _, _, passive, _, []) => Int(passive)
+        Node(_, _, _, _, _, _, passive, _, children) => Int(passive) + sum(count_passive_nodes(child) for child in children)
     end
 end
 
 function depth_of_tree(root::Node, level::Int = 1)::Int
     @match root begin
-        Node(_, _, _, _, _, []) => level
-        Node(_, _, _, passive, _, children) => maximum(depth_of_tree(child, level + Int(!passive)) for child in children)
+        Node(_, _, _, _, _, _, _, _, []) => level
+        Node(_, _, _, _, _, _, passive, _, children) => maximum(depth_of_tree(child, level + Int(!passive)) for child in children)
     end
 end
 

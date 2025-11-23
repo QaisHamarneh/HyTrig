@@ -39,6 +39,9 @@ struct NotEqual <: Constraint
     right::ExprLike
 end
 
+############################
+############################
+
 struct And <: Constraint
     left::Constraint
     right::Constraint
@@ -58,6 +61,9 @@ struct Imply <: Constraint
     right::Constraint
 end
 
+############################
+############################
+
 function str(constraint::Constraint)::String
     @match constraint begin
         Truth(value) => string(value)
@@ -69,7 +75,7 @@ function str(constraint::Constraint)::String
         NotEqual(left, right) => "$(str(left)) != $(str(right))"
         And(left, right) => "($(str(left))) ∧ ($(str(right)))"
         Or(left, right) => "($(str(left))) ∨ ($(str(right)))"
-        Not(constraint) => "¬($(str(constraint)))"
+        Not(c) => "¬($(str(c)))"
         Imply(left, right) => "($(str(left))) → ($(str(right)))"
     end
 end
@@ -85,30 +91,10 @@ function is_closed(constraint::Constraint)::Bool
         NotEqual(left, right) => false
         And(left, right) => is_closed(left) && is_closed(right)
         Or(left, right) => is_closed(left) && is_closed(right)
-        Not(constraint) => ! is_closed(constraint)
+        Not(c) => ! is_closed(c)
         Imply(left, right) => is_closed(left) && is_closed(right)
     end
 end
-
-function simplify(constraint::Constraint)::Constraint
-    @match constraint begin
-        Truth(value) => Truth(value)
-        Less(left, right) => Less(simplify(left), simplify(right))
-        LeQ(left, right) => LeQ(simplify(left), simplify(right))
-        Greater(left, right) => Greater(simplify(left), simplify(right))
-        GeQ(left, right) => GeQ(simplify(left), simplify(right))
-        Equal(left, right) => Equal(simplify(left), simplify(right))
-        NotEqual(left, right) => NotEqual(simplify(left), simplify(right))
-        And(left, right) => And(simplify(left), simplify(right))
-        Or(left, right) => Or(simplify(left), simplify(right))
-        Not(constraint) => Not(simplify(constraint))
-        Imply(left, right) => Imply(simplify(left), simplify(right))
-    end
-end
-
-# println(str(simplify(And(Less(Var(:x), Const(10)), Greater(Var(:x), Const(5))))))
-# println(evaluate(And(Less(Var(:x), Const(10)), Greater(Var(:x), Const(5))), OrderedDict(:x => 5, :x => 6)))
-
 
 function get_atomic_constraints(constraint::Constraint)::Vector{Constraint}
     @match constraint begin
@@ -121,8 +107,23 @@ function get_atomic_constraints(constraint::Constraint)::Vector{Constraint}
         NotEqual(left, right) => [constraint]
         And(left, right) => get_atomic_constraints(left) ∪ get_atomic_constraints(right)
         Or(left, right) => get_atomic_constraints(left) ∪ get_atomic_constraints(right)
-        Not(constraint) => get_atomic_constraints(constraint)
+        Not(c) => get_atomic_constraints(c)
         Imply(left, right) => get_atomic_constraints(left) ∪ get_atomic_constraints(right)
+    end
+end
+
+function negation_normal_form(constraint::Constraint)::Constraint
+    @match constraint begin
+        Not(Not(c)) => negation_normal_form(c)
+        Not(And(left, right)) => Or(negation_normal_form(Not(left)), negation_normal_form(Not(right)))
+        Not(Or(left, right)) => And(negation_normal_form(Not(left)), negation_normal_form(Not(right)))
+        Not(Imply(left, right)) => And(negation_normal_form(left), negation_normal_form(Not(right)))
+        Not(Truth(value)) => Truth(!value)
+        And(left, right) => And(negation_normal_form(left), negation_normal_form(right))
+        Or(left, right) => Or(negation_normal_form(left), negation_normal_form(right))
+        Imply(left, right) => Or(negation_normal_form(Not(left)), negation_normal_form(right))
+        Not(c) => Not(negation_normal_form(c))
+        _ => constraint
     end
 end
 
@@ -130,15 +131,15 @@ function get_zero(constraint::Constraint)::Vector{ExprLike}
     @match constraint begin
         Truth(true) => ExprLike[Const(0)]
         Truth(false) => ExprLike[Const(1)]
-        LeQ(left, right) => ExprLike[Sub(right, left)]
-        Less(left, right) => ExprLike[Sub(right, Add(left, Const(1e-5)))]
-        GeQ(left, right) => ExprLike[Sub(left, right)]
-        Greater(left, right) => ExprLike[Sub(left, Add(right, Const(1e-5)))]
-        Equal(left, right) => ExprLike[Sub(left, right)]
-        NotEqual(left, right) => get_zero(Greater(left, right)) ∪ get_zero(Less(left, right))
+        LeQ(left, right) => ExprLike[Sub(right, left), Sub(left, Add(right, Const(1e-5)))]
+        Less(left, right) => ExprLike[Sub(right, Add(left, Const(1e-5))), Sub(left, right)]
+        GeQ(left, right) => ExprLike[Sub(left, right), Sub(right, Add(left, Const(1e-5)))]
+        Greater(left, right) => ExprLike[Sub(left, Add(right, Const(1e-5))), Sub(right, left)]
+        Equal(left, right) => ExprLike[Sub(left, right)] ∪ get_zero(Greater(left, right)) ∪ get_zero(Less(left, right))
+        NotEqual(left, right) => ExprLike[Sub(left, right)] ∪ get_zero(Greater(left, right)) ∪ get_zero(Less(left, right))
         And(left, right) => get_zero(left) ∪ get_zero(right)
         Or(left, right) => get_zero(left) ∪ get_zero(right)
-        Not(constraint) => get_zero(constraint)
+        Not(c) => get_zero(c)
         Imply(left, right) => get_zero(left) ∪ get_zero(right)
     end
 end
@@ -154,11 +155,10 @@ function evaluate(constraint::Constraint, valuation::Valuation)::Bool
         NotEqual(left, right) => evaluate(left, valuation) != evaluate(right, valuation)
         And(left, right) => evaluate(left, valuation) && evaluate(right, valuation)
         Or(left, right) => evaluate(left, valuation) || evaluate(right, valuation)
-        Not(constraint) => !evaluate(constraint, valuation)
+        Not(c) => !evaluate(c, valuation)
         Imply(left, right) => !evaluate(left, valuation) || evaluate(right, valuation)
     end
 end
-
 
 function get_satisfied_constraints(constraints, valuation::Valuation)
     filter(constraint -> evaluate(constraint, valuation), constraints)

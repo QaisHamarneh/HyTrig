@@ -77,15 +77,15 @@ struct Strategy_Or <: Strategy_Formula
     right::Strategy_Formula
 end
 
-# redefine comparison
-Base.:(==)(x::Strategy_Or, y::Strategy_Or) = (
-    x.left == y.left &&
-    x.right == y.right
-)
 
 struct Strategy_Not <: Strategy_Formula
     formula::Strategy_Formula
 end
+
+# redefine comparison
+Base.:(==)(x::Strategy_Not, y::Strategy_Not) = (
+    x.formula == y.formula
+)
 
 struct Strategy_Imply <: Strategy_Formula
     left::Strategy_Formula
@@ -128,16 +128,15 @@ end
 struct State_Deadlock <: State_Formula
 end
 
-
 function get_all_constraints(formula::State_Formula)::Set{Constraint}
     @match formula begin
-        State_Location(_) => Set{State_Formula}()
-        State_Constraint(constraint) => Set([constraint, Not(constraint)])
+        State_Location(_) => Set{Constraint}()
+        State_Constraint(constraint) => Set([constraint])
         State_And(left, right) => get_all_constraints(left) ∪ get_all_constraints(right)
         State_Or(left, right) => get_all_constraints(left) ∪ get_all_constraints(right)
-        State_Not(f) => get_all_constraints(f)
+        State_Not(subformula) => get_all_constraints(subformula)
         State_Imply(left, right) => get_all_constraints(left) ∪ get_all_constraints(right)
-        State_Deadlock() => Set{State_Formula}()
+        State_Deadlock() => Set{Constraint}()
     end
 end
 
