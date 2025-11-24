@@ -3,6 +3,7 @@ using DataStructures
 include("../game_syntax/game.jl")
 include("syntax_parsers/parser.jl")
 include("ast_to_logic.jl")
+include("../hybrid_atl/termination_conditions.jl")
 
 
 function parse_game(json_file)
@@ -68,12 +69,13 @@ function parse_game(json_file)
 
         game = Game(locations, initial_location, initial_valuation, agents, actions, edges, triggers, true)
 
-        termination_conditions = Dict{String, Any}()
-        termination_conditions["time-bound"] = Float64(FileDict["termination-conditions"]["time-bound"])
-        termination_conditions["max-steps"] = Int64(FileDict["termination-conditions"]["max-steps"])
-        termination_conditions["state-formula"] = parse(FileDict["termination-conditions"]["state-formula"], Bindings(agents_names, locations_names, variables), state)
+        termination_conditions = Termination_Conditions(
+            Float64(FileDict["termination-conditions"]["time-bound"]),
+            Int64(FileDict["termination-conditions"]["max-steps"]),
+            parse(FileDict["termination-conditions"]["state-formula"], Bindings(agents_names, locations_names, variables), state)
+        )
         queries::Vector{Strategy_Formula} = Strategy_Formula[parse(query, Bindings(agents_names, locations_names, variables), strategy) for query in FileDict["queries"]]
-        return game, termination_conditions, queries
+        return game, termination_conditions, queries, FileDict["queries"]
 
     end
 end

@@ -77,7 +77,7 @@ termination_conditions["max-steps"] = ""
 termination_conditions["state-formula"] = ""
 
 # Declare last parsed game tree
-game_tree::Union{NodeOnDemand, Nothing} = Nothing()
+game_tree::Union{Node, Nothing} = Nothing()
 
 # Declare node model
 node_list::Vector{QNode} = []
@@ -294,10 +294,10 @@ function verify()
         triggers,
         true
     )
-    term_conds::Dict{String, Any} = Dict(
-        "time-bound" => Base.parse(Float64, termination_conditions["time-bound"]),
-        "max-steps" => Base.parse(Int64, termination_conditions["max-steps"]),
-        "state-formula" => parse(termination_conditions["state-formula"], bindings, state)
+    term_conds = Termination_Conditions(
+        Base.parse(Float64, termination_conditions["time-bound"]),
+        Base.parse(Int64, termination_conditions["max-steps"]),
+        parse(termination_conditions["state-formula"], bindings, state)
     )
     queries::Vector{Strategy_Formula} = [parse(query.name, bindings, strategy) for query in query_list]
 
@@ -308,14 +308,17 @@ function verify()
 
     if !isnothing(game_tree)
         push!(node_list, QNode(game_tree))
-        game_tree = NodeOnDemand(
+        game_tree = Node(
             Nothing(),
             Nothing(),
+            Nothing(),
+            0,
+            0,
+            0,
             true,
             Nothing(),
             [game_tree]
         )
-        game_tree.children[1].parent = game_tree
     end
 
     for (i, r) in enumerate(results)

@@ -266,7 +266,7 @@ mutable struct QNode <: QObject
     time::Float64
 end
 
-function QNode(node::NodeOnDemand)::QNode
+function QNode(node::Node)::QNode
     if isnothing(node.reaching_decision)
         return QNode(
             string(node.config.location.name),

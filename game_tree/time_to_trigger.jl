@@ -1,13 +1,12 @@
 using DifferentialEquations
 include("../essential_definitions/evolution.jl")
 include("../game_semantics/configuration.jl")
-include("tree.jl")
 
 
 
 function time_to_trigger(config::Configuration, trigger::Constraint, constraints::Set{Constraint}, max_time::Float64)
-    unsatisfied_constraints = get_unsatisfied_constraints(constraints, config.valuation)
-    zero_constraints::Vector{ExprLike} = union_safe([get_zero(constr) for constr in unsatisfied_constraints])
+    constraints_val = Dict(constr => evaluate(constr, config.valuation) for constr in constraints)
+    zero_constraints::Vector{ExprLike} = union_safe([get_zero(constr) for constr in constraints])
     zero_triggers = get_zero(trigger)
     path_to_trigger::Vector{Configuration} = Vector()
     function flowODE!(du, u, p, t)
@@ -38,18 +37,10 @@ function time_to_trigger(config::Configuration, trigger::Constraint, constraints
             terminate!(integrator) # Stop the integration when the condition is met
             return
         end
-        if any(zero_constr -> evaluate(zero_constr, current_valuation) == 0.0, zero_constraints) && any(constr -> evaluate(constr, current_valuation), unsatisfied_constraints)
+        if any(zero_constr -> evaluate(zero_constr, current_valuation) == 0.0, zero_constraints) && any(constr -> evaluate(constr, current_valuation) != constraints_val[constr], constraints)
             push!(path_to_trigger, Configuration(config.location, current_valuation, config.global_clock + integrator.t))
-            unsatisfied_constraints = get_unsatisfied_constraints(constraints, current_valuation)
-            for i in eachindex(zero_constraints)
-                pop!(zero_constraints)
-            end
-            for constr in unsatisfied_constraints
-                for zero_constr in get_zero(constr)
-                    if !(zero_constr in zero_constraints)
-                        push!(zero_constraints, zero_constr)
-                    end
-                end
+            for constr in constraints
+                constraints_val[constr] = evaluate(constr, current_valuation)
             end
         end
     end

@@ -226,14 +226,14 @@
 
     },
     "termination-conditions": {
-        "time-bound": 1000.0,
-        "max-steps": 12,
+        "time-bound": 300.0,
+        "max-steps": 50,
         "state-formula": "false"
     },
     "queries": 
     [
-        "<<A, C>> F x > 8 && y > 8",
-        "<<A, B>> F <<C>> F x < 0 || y < -10",
-        "<<A, B>> F y > 8 && spd_B == 0.2"
+        "<<A>> F y > 6",
+        "<<B, C>> F <<B, C>> G y <= 2",
+        "<<B>> G <<B>> F x < -8"
     ]
 }
