@@ -1,5 +1,5 @@
 """
-    GUI
+    HyTrig-GUI
 
 This script runs a GUI with QML. The GUI allows to create, edit, save, load and verify hybrid games with triggers.
 
@@ -8,6 +8,9 @@ This script runs a GUI with QML. The GUI allows to create, edit, save, load and 
 - `is_valid_formula(formula, level)::Bool`: check if a formula is valid at a given parse level
 - `save_to_json(path)`: save the current game to a JSON file
 - `load_from_json(path)`: load a game from a JSON file
+- `verify()`: verify the current game
+- `up_tree()::Bool`: go up a layer in the last parsed game tree
+- `down_tree(i)::Bool` go down a child in the last parsed game tree
 
 # Authors:
 - Moritz Maas
@@ -308,17 +311,7 @@ function verify()
 
     if !isnothing(game_tree)
         push!(node_list, QNode(game_tree))
-        game_tree = Node(
-            Nothing(),
-            Nothing(),
-            Nothing(),
-            0,
-            0,
-            0,
-            true,
-            Nothing(),
-            [game_tree]
-        )
+        game_tree = game_tree.parent
     end
 
     for (i, r) in enumerate(results)

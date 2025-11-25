@@ -205,6 +205,11 @@ Column {
 
         }
 
+        ScrollBar.vertical: ScrollBar {
+            active: true
+            policy: ScrollBar.AsNeeded
+        }
+
     }
 
     // Add location row

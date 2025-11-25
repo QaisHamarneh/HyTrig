@@ -28,6 +28,7 @@ Column {
         id: trigger_list
         width: parent.width
         height: Math.min(contentHeight, 200)
+        spacing: 10
         clip: true
 
         model: agent_model

@@ -82,6 +82,7 @@ Column {
                 checkState: model.result ? Qt.Checked : Qt.Unchecked
                 
                 onClicked: {
+                    tree_window.level = 1;
                     tree_window.node_list.model = [];
                     tree_window.node_list.model = node_model;
                     tree_window.show();

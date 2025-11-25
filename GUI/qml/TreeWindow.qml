@@ -143,5 +143,13 @@ ApplicationWindow {
         }
 
     }
+
+    onClosing: {
+        while (Julia.up_tree()) {
+            level = level - 1;
+        }
+        node_list.model = [];
+        node_list.model = node_model;
+    }
     
 }
