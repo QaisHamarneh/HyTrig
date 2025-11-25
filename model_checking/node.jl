@@ -8,46 +8,72 @@ struct TriggerPath
     path_to_trigger::Vector{Configuration}
 end
 
-struct Node
-    parent::Union{Node, Nothing}
-    reaching_decision::Union{Pair{Agent, Action}, Pair{Agent, <:Constraint}, Nothing}
-    reaching_trigger::Union{TriggerPath, Nothing}
+abstract type Node
+end
+
+struct RootNode <: Node
+    config::Configuration
     level::Int32
-    trigger_number::Int32
-    passive_number::Int32
-    passive::Bool
-    config::Union{Configuration, Nothing}
     children::Vector{Node}
 end
 
-function count_nodes(root::Node, level=0)::Int
-    # println("Level: ", root.level,  " - Trigger: ", root.trigger_number, " - Passive: ", root.passive_number, " - ", root.config.location.name, " - ",  root.config.valuation)
+struct ActiveNode <: Node
+    parent::Node
+    reaching_decision::Pair{Agent, Action}
+    reaching_trigger::Constraint
+    config::Configuration
+    level::Int32
+    children::Vector{Node}
+end
+
+struct PassiveNode <: Node
+    parent::Node
+    reaching_decision::Pair{Agent, Constraint}
+    config::Configuration
+    level::Int32
+    children::Vector{Node}
+end
+
+function count_nodes(root::Node)::Int
+    # println(root.config.location.name, " - ",  root.config.valuation)
     @match root begin
-        Node(_, _, _, _, _, _, _, _, []) => 1
-        Node(_, _, _, _, _, _, _, _, children) => 1 + sum(count_nodes(child, level+1) for child in children)
+        RootNode(_, _, []) => 1
+        RootNode(_, _, children) => 1 + sum(count_nodes(child) for child in children)
+        ActiveNode(_, _, _, _, _, []) => 1
+        ActiveNode(_, _, _, _, _, children) => 1 + sum(count_nodes(child) for child in children)
+        PassiveNode(_, _, _, _, []) => 1
+        PassiveNode(_, _, _, _, children) => 1 + sum(count_nodes(child) for child in children)
     end
 end
 
 function count_passive_nodes(root::Node)::Int
-    # println("Level: ", level, " - Location ", root.config.location.name, " - Valuation: ",  root.config.valuation)
     @match root begin
-        Node(_, _, _, _, _, _, passive, _, []) => Int(passive)
-        Node(_, _, _, _, _, _, passive, _, children) => Int(passive) + sum(count_passive_nodes(child) for child in children)
+        RootNode(_, _, []) => 0
+        RootNode(_, _, children) => sum(count_passive_nodes(child) for child in children)
+        ActiveNode(_, _, _, _, _, []) => 0
+        ActiveNode(_, _, _, _, _, children) => sum(count_passive_nodes(child) for child in children)
+        PassiveNode(_, _, _, _, []) => 1
+        PassiveNode(_, _, _, _, children) => 1 + sum(count_passive_nodes(child) for child in children)
     end
 end
 
 function depth_of_tree(root::Node, level::Int = 1)::Int
     @match root begin
-        Node(_, _, _, _, _, _, _, _, []) => level
-        Node(_, _, _, _, _, _, passive, _, children) => maximum(depth_of_tree(child, level + Int(!passive)) for child in children)
+        RootNode(_, _, []) => level
+        RootNode(_, _, children) => maximum(depth_of_tree(child, level + 1) for child in children)
+        ActiveNode(_, _, _, _, _, []) => level
+        ActiveNode(_, _, _, _, _, children) => maximum(depth_of_tree(child, level + 1) for child in children)
+        PassiveNode(_, _, _, _, []) => level
+        PassiveNode(_, _, _, _, children) => maximum(depth_of_tree(child, level) for child in children)
     end
 end
 
 function child_time(child::Node)::Float64
-    if child.passive
-        return child_time(child.children[1])
-    else
-        return child.config.global_clock
+    @match child begin
+        RootNode(_, _, _) => 0
+        ActiveNode(_, _, _, _, _, _) => child.config.global_clock
+        PassiveNode(_, _, _, _, []) => child.config.global_clock
+        PassiveNode(_, _, _, _, children) => child_time(children[1])
     end
 end
 
