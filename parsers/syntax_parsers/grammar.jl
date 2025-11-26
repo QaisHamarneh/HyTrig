@@ -94,9 +94,9 @@ function _parse_boolean_constraint(left_tokens::ParseVector, token::BooleanToken
     return ConstraintConstant(token.type == "true")
 end
 
-# state -> deadlock
-function _parse_deadlock_state(left_tokens::ParseVector, token::StateConstantToken, right_tokens::ParseVector)::StateConstant
-    return StateConstant(token.type)
+# strategy -> deadlock
+function _parse_deadlock_strategy(left_tokens::ParseVector, token::StrategyConstantToken, right_tokens::ParseVector)::StrategyConstant
+    return StrategyConstant(token.type)
 end
 
 pre_parse_grammar::Grammar = Dict([
@@ -110,8 +110,8 @@ pre_parse_grammar::Grammar = Dict([
     (NumericToken, [GrammarRule([], [], _parse_numeric_expression)]),
     # constr -> boolean
     (BooleanToken, [GrammarRule([], [], _parse_boolean_constraint)]),
-    # state -> deadlock
-    (StateConstantToken, [GrammarRule([], [], _parse_deadlock_state)])
+    # strategy -> deadlock
+    (StrategyConstantToken, [GrammarRule([], [], _parse_deadlock_strategy)])
 ])
 
 

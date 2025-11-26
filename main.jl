@@ -42,6 +42,12 @@ nodes_count, passive_nodes = count_nodes(game_tree), count_passive_nodes(game_tr
 tree_depth = depth_of_tree(game_tree)
 
 println("*************************")
+println("*************************")
+print_tree(game_tree)
+println("*************************")
+println("*************************")
+
+println("*************************")
 println("Time to parse = $(t2 - t1)")
 # println("queries = ", queries)
 println("*************************")

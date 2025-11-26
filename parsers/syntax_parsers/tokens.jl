@@ -14,7 +14,7 @@ This file contains all token definitions needed to convert a string into an arra
 - `CustomToken`: abstract type for all custom names
 - `NumericToken`: token for all numeric values
 - `BooleanToken`: token for all boolean values
-- `StateConstantToken`: token for deadlocks
+- `StrategyConstantToken`: token for deadlocks
 - `QuantifierToken`: token for quantifier keywords
 - `StrategyUnaryOperatorToken`: token for unary operations on strategies
 - `StrategyBinaryOperatorToken`: token for binary operations on strategies
@@ -36,7 +36,7 @@ The types are hierarchically ordered as follows:
     |-- NumericToken
     |-- KeywordToken
     |   |-- BooleanToken
-    |   |-- StateConstantToken
+    |   |-- StrategyConstantToken
     |   |-- QuantifierToken
     |-- OperatorToken
         |-- ...UnaryOperatorToken
@@ -153,15 +153,15 @@ struct BooleanToken <: KeywordToken
 end
 
 """
-    StateConstantToken <: KeywordToken
+    StrategyConstantToken <: KeywordToken
 
-A token for state constants like `deadlock`.
+A token for strategy constants like `deadlock`.
 
-    StateConstantToken(type::String)
+    StrategyConstantToken(type::String)
 
-Create a StateConstantToken of type `type`.
+Create a StrategyConstantToken of type `type`.
 """
-struct StateConstantToken <: KeywordToken
+struct StrategyConstantToken <: KeywordToken
     type::String
 end
 

@@ -19,23 +19,64 @@ end
 
 struct ActiveNode <: Node
     parent::Node
-    reaching_decision::Union{Pair{Agent, Action}, Nothing}
-    reaching_trigger::Union{Constraint, Nothing}
+    reaching_decision::Pair{Agent, Action}
+    reaching_trigger::Constraint
     config::Configuration
     level::Int32
     children::Vector{Node}
 end
 
 struct PassiveNode <: Node
-    parent::Union{Node, Nothing}
+    parent::Node
     reaching_decision::Union{Pair{Agent, Constraint}, Nothing}
     config::Configuration
     level::Int32
     children::Vector{Node}
 end
 
+struct EndNode <: Node
+    parent::Node
+    config::Configuration
+    level::Int32
+    children::Vector{Node}
+end
+
+function print_tree(root::Node)
+    @match root begin
+        RootNode(_, _, children) =>
+            begin
+                println("Root ", root.config.location.name, " - Valuation: ", root.config.valuation)
+                for child in children
+                    print_tree(child)
+                end
+            end
+        ActiveNode(_, decision, trigger, _, level, children) =>
+            begin
+                println(level, "- Active - Agent: ", decision.first, " - Action: ", decision.second, " / ", trigger, " - Location: ", root.config.location.name, " - Valuation: ", root.config.valuation)
+                for child in children
+                    print_tree(child)
+                end
+            end
+        PassiveNode(_, decision, _, level, children) =>
+            begin
+                if isnothing(decision)
+                    println(level, "- Passive - No Decision - Location: ", root.config.location.name, " - Valuation: ", root.config.valuation)
+                else
+                    println(level, "- Passive - Agent: ", decision.first, " - Trigger: ", decision.second, " - Location: ", root.config.location.name, " - Valuation: ", root.config.valuation)
+                end
+                for child in children
+                    print_tree(child)
+                end
+            end
+        EndNode(_, _, level, children) =>
+            begin
+                println(level, "- End - Location: ", root.config.location.name, " - Valuation: ", root.config.valuation)
+            end
+    end
+end
+
 function count_nodes(root::Node)::Int
-    println("Level = ", root.level, " - ", root.config.location.name, " - ",  root.config.valuation)
+    # println("Level = ", root.level, " - ", root.config.location.name, " - ",  root.config.valuation)
     @match root begin
         RootNode(_, _, []) => 1
         RootNode(_, _, children) => 1 + sum(count_nodes(child) for child in children)
@@ -43,6 +84,8 @@ function count_nodes(root::Node)::Int
         ActiveNode(_, _, _, _, _, children) => 1 + sum(count_nodes(child) for child in children)
         PassiveNode(_, _, _, _, []) => 1
         PassiveNode(_, _, _, _, children) => 1 + sum(count_nodes(child) for child in children)
+        EndNode(_, _, _, []) => 1
+        EndNode(_, _, _, children) => 1 + sum(count_nodes(child) for child in children)
     end
 end
 
@@ -54,17 +97,21 @@ function count_passive_nodes(root::Node)::Int
         ActiveNode(_, _, _, _, _, children) => sum(count_passive_nodes(child) for child in children)
         PassiveNode(_, _, _, _, []) => 1
         PassiveNode(_, _, _, _, children) => 1 + sum(count_passive_nodes(child) for child in children)
+        EndNode(_, _, _, []) => 1
+        EndNode(_, _, _, children) => 1 + sum(count_nodes(child) for child in children)
     end
 end
 
 function depth_of_tree(root::Node, level::Int = 1)::Int
     @match root begin
-        RootNode(_, _, []) => level
-        RootNode(_, _, children) => maximum(depth_of_tree(child, level + 1) for child in children)
-        ActiveNode(_, _, _, _, _, []) => level
-        ActiveNode(_, _, _, _, _, children) => maximum(depth_of_tree(child, level + 1) for child in children)
-        PassiveNode(_, _, _, _, []) => level
-        PassiveNode(_, _, _, _, children) => maximum(depth_of_tree(child, level) for child in children)
+        RootNode(_, _, []) => 1
+        RootNode(_, _, children) => maximum(depth_of_tree(child) for child in children)
+        ActiveNode(_, _, _, _, _, []) => root.level
+        ActiveNode(_, _, _, _, _, children) => maximum(depth_of_tree(child) for child in children)
+        PassiveNode(_, _, _, _, []) => root.level
+        PassiveNode(_, _, _, _, children) => maximum(depth_of_tree(child) for child in children)
+        EndNode(_, _, _, []) => root.level
+        EndNode(_, _, _, children) => maximum(depth_of_tree(child) for child in children)
     end
 end
 
@@ -74,6 +121,7 @@ function child_time(child::Node)::Float64
         ActiveNode(_, _, _, _, _, _) => child.config.global_clock
         PassiveNode(_, _, _, _, []) => child.config.global_clock
         PassiveNode(_, _, _, _, children) => child_time(children[1])
+        EndNode(_, _, _, children) => child.config.global_clock
     end
 end
 

@@ -144,11 +144,7 @@ function get_zero(constraint::Constraint)::Vector{ExprLike}
     end
 end
 function get_zero(constraints)::Vector{ExprLike}
-    zeros = Vector{ExprLike}()
-    for constr in constraints
-        zeros = zeros ∪ get_zero(constr)
-    end
-    return zeros
+    return union_safe([get_zero(constr) for constr in constraints])
 end
 
 function evaluate(constraint::Constraint, valuation::Valuation)::Bool

@@ -52,7 +52,7 @@ keywords::Dict{String, Type} = Dict([
     ("or",    StrategyBinaryOperatorToken),
     ("imply", StrategyBinaryOperatorToken),
 
-    ("deadlock", StateConstantToken),
+    ("deadlock", StrategyConstantToken),
 
     ("true",  BooleanToken),
     ("false", BooleanToken),

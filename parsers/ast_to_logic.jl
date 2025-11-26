@@ -3,10 +3,10 @@ include("../hybrid_atl/logic.jl")
 using Match
 
 
-function to_logic(node::ConstantOperation)::Union{State_Location, State_Deadlock, Truth, Const, Var}
+function to_logic(node::ConstantOperation)::Union{State_Location, Strategy_Deadlock, Truth, Const, Var}
     @match node begin
         LocationNode(value) => State_Location(Symbol(value))
-        StateConstant(value) => State_Deadlock()
+        StrategyConstant(value) => Strategy_Deadlock()
         ConstraintConstant(value) => Truth(value)
         ExpressionConstant(value) => Const(value)
         VariableNode(value) => Var(Symbol(value))

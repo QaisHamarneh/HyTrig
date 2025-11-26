@@ -16,7 +16,7 @@ This file contains all definitions needed to parse tokens to an AST.
 - `StrategyBinaryOperation`: node for binary operations on strategies
 - `StateNode`: abstract type for state nodes
 - `LocationNode`: node for locations
-- `StateConstant`: node for deadlocks
+- `StrategyConstant`: node for deadlocks
 - `StateUnaryOperation`: node for unary operations on states
 - `StateBinaryOperation`: node for binary operations on states
 - `ConstraintNode`: abstract type for constraint nodes
@@ -35,11 +35,11 @@ The types are hierarchically ordered as follows:
     |-- Agents
     |-- StrategyNode
     |   |-- Quantifier
+    |   |-- StrategyConstant
     |   |-- StrategyUnaryOperation
     |   |-- StrategyBinaryOperation
     |   |-- StateNode
     |       |-- LocationNode
-    |       |-- StateConstant
     |       |-- StateUnaryOperation
     |       |-- StateBinaryOperation
     |       |-- ConstraintNode
@@ -180,15 +180,15 @@ struct LocationNode <: StateNode
 end
 
 """
-    StateConstant <: StateNode
+    StrategyConstant <: StateNode
 
 AST Node for deadlocks.
 
-    StateConstant(value::String)
+    StrategyConstant(value::String)
 
-Create a StateConstant with value `value`.
+Create a StrategyConstant with value `value`.
 """
-struct StateConstant <: StateNode
+struct StrategyConstant <: StrategyNode
     value::String
 end
 
@@ -325,7 +325,7 @@ Base.:(==)(x::Quantifier, y::Quantifier) = (
 )
 
 # group operation types
-const ConstantOperation = Union{LocationNode, StateConstant, ConstraintConstant, ExpressionConstant, VariableNode}
+const ConstantOperation = Union{LocationNode, StrategyConstant, ConstraintConstant, ExpressionConstant, VariableNode}
 const UnaryOperation = Union{StrategyUnaryOperation, StateUnaryOperation, ConstraintUnaryOperation, ExpressionUnaryOperation}
 const BinaryOperation = Union{StrategyBinaryOperation, StateBinaryOperation, ConstraintBinaryOperation, ExpressionBinaryOperation}
 

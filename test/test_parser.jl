@@ -229,11 +229,11 @@ state4 = parse("x + y * z > 0 && loc1", Bindings(Set([]), Set(["loc1"]), Set(["x
 )
 state5 = parse("true", Bindings(Set([]), Set([]), Set([])), state)
 @test state5 == State_Constraint(Truth(true))
-state6 = parse("deadlock", Bindings(Set([]), Set([]), Set([])), state)
-@test state6 == State_Deadlock()
 state7 = parse("", Bindings(Set([]), Set([]), Set([])), state)
 @test state7 == State_Constraint(Truth(false))
 
+state6 = parse("deadlock", Bindings(Set([]), Set([]), Set([])), strategy)
+@test state6 == Strategy_Deadlock()
 strategy1 = parse("true", Bindings(Set([]), Set([]), Set([])), strategy)
 @test strategy1 == Strategy_to_State(State_Constraint(Truth(true)))
 strategy2 = parse("<<>> F true", Bindings(Set([]), Set([]), Set([])), strategy)

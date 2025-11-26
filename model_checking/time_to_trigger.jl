@@ -1,14 +1,14 @@
 using DifferentialEquations
 include("../essential_definitions/evolution.jl")
-include("node.jl")
+include("../game_semantics/configuration.jl")
 
+function time_to_trigger(config::Configuration, constraints::Vector{Constraint}, invariant, max_time::Float64)
 
-
-function time_to_trigger(node::Node, trigger::State_Formula, constraints::Set{Constraint}, max_time::Float64)
-    config = node.config
     constraints_val = Dict(constr => evaluate(constr, config.valuation) for constr in constraints)
-    zero_constraints::Vector{ExprLike} = union_safe([get_zero(constr) for constr in constraints])
-    zero_triggers = get_zero(get_all_constraints(trigger))
+
+    zero_constraints::Vector{ExprLike} = get_zero(constraints)
+    zero_invariant = get_zero(invariant)
+
     path_to_trigger::Vector{Configuration} = Vector()
     function flowODE!(du, u, p, t)
         current_valuation = valuation_from_vector(config.valuation, u)
@@ -23,23 +23,22 @@ function time_to_trigger(node::Node, trigger::State_Formula, constraints::Set{Co
     end
 
     function condition(out, u, t, integrator) # Event when condition(out,u,t,integrator) == 0
-        for (i, zero_constr) in enumerate(zero_constraints ∪ zero_triggers)
+        for (i, zero_constr) in enumerate(zero_constraints ∪ zero_invariant)
             out[i] = evaluate(zero_constr, valuation_from_vector(config.valuation, u))
         end
     end
 
     function affect!(integrator, idx)
         if integrator.t < 1e-5
-            return # No need to affect the valuation if the trigger is not active
+            return # No need to affect the valuation if the trigger was already met at time 0
         end
         current_valuation = round5(valuation_from_vector(config.valuation, integrator.u))
-        current_node = PassiveNode(nothing, nothing, Configuration(config.location, current_valuation, config.global_clock + integrator.t), 0, [])
-        if evaluate_state(trigger, current_node)
-            # println("Terminated")
+        if evaluate(invariant, current_valuation)
             terminate!(integrator) # Stop the integration when the condition is met
             return
         end
-        if any(zero_constr -> evaluate(zero_constr, current_valuation) == 0.0, zero_constraints) && any(constr -> evaluate(constr, current_valuation) != constraints_val[constr], constraints)
+        if any(zero_constr -> evaluate(zero_constr, current_valuation) == 0.0, zero_constraints) && 
+           any(constr -> evaluate(constr, current_valuation) != constraints_val[constr], constraints)
             push!(path_to_trigger, Configuration(config.location, current_valuation, config.global_clock + integrator.t))
             for constr in constraints
                 constraints_val[constr] = evaluate(constr, current_valuation)
@@ -47,12 +46,11 @@ function time_to_trigger(node::Node, trigger::State_Formula, constraints::Set{Co
         end
     end
 
-    cbv = VectorContinuousCallback(condition, affect!, length(zero_constraints ∪ zero_triggers)) #, save_positions = false)
+    cbv = VectorContinuousCallback(condition, affect!, length(zero_constraints ∪ zero_invariant))
 
     u0 = collect(values(config.valuation))
     tspan = (0.0, max_time + 1e-5)  # Add a small buffer to ensure we capture the trigger time
     prob = ODEProblem(flowODE!, u0, tspan)
-    # sol = solve(prob, callback = cbv, dt = 1e-3, adaptive = false)
     sol = solve(prob, Tsit5(), callback = cbv, abstol=1e-6, reltol=1e-6)
     
     final_valuation = valuation_from_vector(config.valuation, sol[end])

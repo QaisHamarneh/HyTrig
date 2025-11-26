@@ -1,6 +1,5 @@
 include("../essential_definitions/constraint.jl")
 include("../game_semantics/configuration.jl")
-include("../model_checking/node.jl")
 using Match
 using DataStructures
 
@@ -126,7 +125,7 @@ struct State_Imply <: State_Formula
     right::State_Formula
 end
 
-struct State_Deadlock <: State_Formula
+struct Strategy_Deadlock <: Strategy_Formula
 end
 
 function get_all_constraints(formula::State_Formula)::Set{Constraint}
@@ -137,7 +136,6 @@ function get_all_constraints(formula::State_Formula)::Set{Constraint}
         State_Or(left, right) => get_all_constraints(left) ∪ get_all_constraints(right)
         State_Not(subformula) => get_all_constraints(subformula)
         State_Imply(left, right) => get_all_constraints(left) ∪ get_all_constraints(right)
-        State_Deadlock() => Set{Constraint}()
     end
 end
 
@@ -152,26 +150,22 @@ function get_all_constraints(formula::Strategy_Formula)::Set{Constraint}
         Strategy_Or(left, right) => get_all_constraints(left) ∪ get_all_constraints(right)
         Strategy_Not(f) => get_all_constraints(f)
         Strategy_Imply(left, right) => get_all_constraints(left) ∪ get_all_constraints(right)
+        Strategy_Deadlock() => Set{Constraint}()
     end
 end
 
 function get_all_constraints(formulae::Vector{Logic_formula})::Set{Constraint}
-    props = Set{Constraint}()
-    for formula in formulae
-        props = props ∪ get_all_constraints(formula)
-    end
-    return props
+    return union_safe([get_all_constraints(formula) for formula in formulae])
 end
 
 
-function evaluate_state(formula::State_Formula, node::Node, terminal_nodes::Set{Node}=Set{Node}())::Bool
+function evaluate_state(formula::State_Formula, config::Configuration)::Bool
     @match formula begin
-        State_Location(loc) => loc == node.config.location
-        State_Constraint(constraint) => evaluate(constraint, node.config.valuation)
-        State_And(left, right) => evaluate_state(left, node.config, terminal_nodes) && evaluate_state(right, node.config, terminal_nodes)
-        State_Or(left, right) => evaluate_state(left, node.config, terminal_nodes) || evaluate_state(right, node.config, terminal_nodes)
-        State_Not(f) => ! evaluate_state(f, node.config, terminal_nodes)
-        State_Imply(left, right) => ! evaluate_state(left, node.config, terminal_nodes) || evaluate_state(right, node.config, terminal_nodes)
-        State_Deadlock() => ! (node in terminal_nodes) && length(node.children) == 0
+        State_Location(loc) => loc == config.location
+        State_Constraint(constraint) => evaluate(constraint, config.valuation)
+        State_And(left, right) => evaluate_state(left, config) && evaluate_state(right, config)
+        State_Or(left, right) => evaluate_state(left, config) || evaluate_state(right, config)
+        State_Not(f) => ! evaluate_state(f, config)
+        State_Imply(left, right) => ! evaluate_state(left, config) || evaluate_state(right, config)
     end
 end
