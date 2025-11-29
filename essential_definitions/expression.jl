@@ -72,6 +72,17 @@ struct CoTan <: ExprLike
     base::ExprLike
 end
 
+struct Min <: ExprLike
+    left::ExprLike
+    right::ExprLike
+end
+
+struct Max <: ExprLike
+    left::ExprLike
+    right::ExprLike
+end
+
+
 if !isdefined(Main, :ReAssignment)
     const ReAssignment = Dict{Variable, <:ExprLike}
 end
@@ -93,6 +104,8 @@ function evaluate(expr::ExprLike, valuation::Valuation)::Float64
         CoSin(base) => round5(cos(evaluate(base, valuation)))
         Tan(base) => round5(tan(evaluate(base, valuation)))
         CoTan(base) => round5(cot(evaluate(base, valuation)))
+        Min(left, right) => round5(min(evaluate(left, valuation), evaluate(right, valuation)))
+        Max(left, right) => round5(max(evaluate(left, valuation), evaluate(right, valuation)))
     end
 end
 
@@ -113,6 +126,8 @@ function str(expr::ExprLike)::String
         CoSin(base) => "cos($(str(base)))"
         Tan(base) => "tan($(str(base)))"
         CoTan(base) => "cot($(str(base)))"
+        Min(left, right) => "min($(str(left)), $(str(right)))"
+        Max(left, right) => "max($(str(left)), $(str(right)))"
     end
 end
 
@@ -133,6 +148,8 @@ function is_constant(expr::ExprLike)::Bool
         CoSin(base) => is_constant(base)
         Tan(base) => is_constant(base)
         CoTan(base) => is_constant(base)
+        Min(left, right) => is_constant(left) && is_constant(right)
+        Max(left, right) => is_constant(left) && is_constant(right)
     end
 end
 
@@ -152,5 +169,7 @@ function is_linear(expr::ExprLike)::Bool
         CoSin(base) => is_constant(base)
         Tan(base) => is_constant(base)
         CoTan(base) => is_constant(base)
+        Min(left, right) => is_linear(left) && is_linear(right)
+        Max(left, right) => is_linear(left) && is_linear(right)
     end
 end
