@@ -53,14 +53,14 @@ ast = _parse_tokens(tokenize("cot(0)/10", Bindings(Set([]), Set([]), Set([]))))
 @test to_logic(ast) == Div(CoTan(Const(0.0)), Const(10.0))
 @test ast == _parse_tokens(tokenize("(cot(((0)))/(10))", Bindings(Set([]), Set([]), Set([]))), expression)
 
-ast = ast = _parse_tokens(tokenize("x + y * z", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))))
+ast = _parse_tokens(tokenize("x + y * z", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))))
 @test ast == ExpressionBinaryOperation("+", VariableNode("x"), ExpressionBinaryOperation("*", VariableNode("y"), VariableNode("z")))
 @test to_string(ast) == "(x)+((y)*(z))"
 @test to_logic(ast) == Add(Var(:x), Mul(Var(:y), Var(:z)))
 @test ast == _parse_tokens(tokenize("x + (y * z)", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))), expression)
 @test ast == _parse_tokens(tokenize("x + (y) * z", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))), constraint)
 
-ast = ast = _parse_tokens(tokenize("x - y * z", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))))
+ast = _parse_tokens(tokenize("x - y * z", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))))
 @test ast == ExpressionBinaryOperation("-", VariableNode("x"), ExpressionBinaryOperation("*", VariableNode("y"), VariableNode("z")))
 @test to_string(ast) == "(x)-((y)*(z))"
 
@@ -68,27 +68,32 @@ ast = ast = _parse_tokens(tokenize("x - y * z", Bindings(Set([]), Set([]), Set([
 @test ast == _parse_tokens(tokenize("x - (y * z)", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))), expression)
 @test ast == _parse_tokens(tokenize("x - (y) * z", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))), constraint)
 
-ast = ast = _parse_tokens(tokenize("x * y - z", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))))
+ast = _parse_tokens(tokenize("x * y - z", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))))
 @test ast == ExpressionBinaryOperation("-", ExpressionBinaryOperation("*", VariableNode("x"), VariableNode("y")), VariableNode("z"))
 @test to_string(ast) == "((x)*(y))-(z)"
 @test to_logic(ast) == Sub(Mul(Var(:x), Var(:y)), Var(:z))
 @test ast == _parse_tokens(tokenize("(x * y) - z", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))), expression)
 @test ast == _parse_tokens(tokenize("x * y - (z)", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))), constraint)
 
-ast = ast = _parse_tokens(tokenize("-y * z", Bindings(Set([]), Set([]), Set(["y", "z"]))))
+ast = _parse_tokens(tokenize("-y * z", Bindings(Set([]), Set([]), Set(["y", "z"]))))
 @test ast == ExpressionBinaryOperation("*", ExpressionUnaryOperation("-", VariableNode("y")), VariableNode("z"))
 @test to_string(ast) == "(-(y))*(z)"
 @test to_logic(ast) == Mul(Neg(Var(:y)), Var(:z))
 @test ast == _parse_tokens(tokenize("-(y) * z", Bindings(Set([]), Set([]), Set(["y", "z"]))), expression)
 @test ast != _parse_tokens(tokenize("-(y * z)", Bindings(Set([]), Set([]), Set(["y", "z"]))), constraint)
 
-ast = ast = _parse_tokens(tokenize("x ^ y - z * 10", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))))
+ast = _parse_tokens(tokenize("x ^ y - z * 10", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))))
 @test ast == ExpressionBinaryOperation(
     "-",
     ExpressionBinaryOperation("^", VariableNode("x"), VariableNode("y")),
     ExpressionBinaryOperation("*", VariableNode("z"), ExpressionConstant(10.0))
 )
 @test to_string(ast) == "((x)^(y))-((z)*(10.0))"
+@test to_logic(ast) == Sub(Expon(Var(:x), Var(:y)), Mul(Var(:z), Const(10.0)))
+
+ast = _parse_tokens(tokenize("min(max(x, y), z)", Bindings(Set([]), Set([]), Set(["x", "y", "z"]))))
+@test ast == ExpressionBinaryOperation("min", ExpressionBinaryOperation("max", VariableNode("x"), VariableNode("y")), VariableNode("z"))
+@test to_string(ast) == "min(max(x,y),z)"
 @test to_logic(ast) == Sub(Expon(Var(:x), Var(:y)), Mul(Var(:z), Const(10.0)))
 
 # test constraints

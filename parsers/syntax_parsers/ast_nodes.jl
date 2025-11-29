@@ -12,11 +12,11 @@ This file contains all definitions needed to parse tokens to an AST.
 - `Agents`: node for agent lists
 - `StrategyNode`: abstract type for strategy nodes
 - `Quantifier`: node for quantified strategies
+- `StrategyConstant`: node for deadlocks
 - `StrategyUnaryOperation`: node for unary operations on strategies
 - `StrategyBinaryOperation`: node for binary operations on strategies
 - `StateNode`: abstract type for state nodes
 - `LocationNode`: node for locations
-- `StrategyConstant`: node for deadlocks
 - `StateUnaryOperation`: node for unary operations on states
 - `StateBinaryOperation`: node for binary operations on states
 - `ConstraintNode`: abstract type for constraint nodes
@@ -121,6 +121,19 @@ abstract type StrategyNode <: ASTNode
 end
 
 """
+    StrategyConstant <: StateNode
+
+AST Node for deadlocks.
+
+    StrategyConstant(value::String)
+
+Create a StrategyConstant with value `value`.
+"""
+struct StrategyConstant <: StrategyNode
+    value::String
+end
+
+"""
     StrategyUnaryOperation <: StrategyNode
 
 AST Node for unary operations on strategies.
@@ -176,19 +189,6 @@ AST Node for locations.
 Create a LocationNode for a location with name `value`.
 """
 struct LocationNode <: StateNode
-    value::String
-end
-
-"""
-    StrategyConstant <: StateNode
-
-AST Node for deadlocks.
-
-    StrategyConstant(value::String)
-
-Create a StrategyConstant with value `value`.
-"""
-struct StrategyConstant <: StrategyNode
     value::String
 end
 

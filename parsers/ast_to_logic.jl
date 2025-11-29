@@ -31,6 +31,8 @@ function to_logic(node::ExpressionBinaryOperation)::ExprLike
         "/" => Div(to_logic(node.left_child), to_logic(node.right_child))
         "^" => Expon(to_logic(node.left_child), to_logic(node.right_child))
         "%" => Modulo(to_logic(node.left_child), to_logic(node.right_child))
+        "min" => Min(to_logic(node.left_child), to_logic(node.right_child))
+        "max" => Min(to_logic(node.left_child), to_logic(node.right_child))
     end
 end
 

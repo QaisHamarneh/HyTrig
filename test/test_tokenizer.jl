@@ -68,6 +68,18 @@ test_tokens = tokenize("))", Bindings(Set([]), Set([]), Set([])))
 @test test_tokens[2] isa SeparatorToken
 @test test_tokens[2].type == ")"
 
+# test function tokenization
+test_tokens = tokenize("min(3,5)", Bindings(Set([]), Set([]), Set([])))
+@test length(test_tokens) == 6
+@test test_tokens == [
+    ExpressionBinaryFunctionToken("min"),
+    SeparatorToken("("),
+    NumericToken("3"),
+    SeparatorToken(","),
+    NumericToken("5"),
+    SeparatorToken(")")
+]
+
 # test numeric tokenization
 @test tokenize("10", Bindings(Set([]), Set([]), Set([]))) == [NumericToken("10")]
 @test tokenize("10.0", Bindings(Set([]), Set([]), Set([]))) == [NumericToken("10.0")]

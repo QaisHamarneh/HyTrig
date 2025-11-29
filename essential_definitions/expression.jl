@@ -46,6 +46,16 @@ struct Modulo <: ExprLike
     right::ExprLike
 end
 
+struct Min <: ExprLike
+    left::ExprLike
+    right::ExprLike
+end
+
+struct Max <: ExprLike
+    left::ExprLike
+    right::ExprLike
+end
+
 struct Sin <: ExprLike
     base::ExprLike
 end
@@ -75,8 +85,10 @@ function evaluate(expr::ExprLike, valuation::Valuation)::Float64
         Mul(left, right) => round5(evaluate(left, valuation) * evaluate(right, valuation))
         Sub(left, right) => round5(evaluate(left, valuation) - evaluate(right, valuation))
         Div(left, right) => round5(evaluate(left, valuation) / evaluate(right, valuation))
-        Modulo(left, right) => round5(evaluate(left, valuation) % evaluate(right, valuation))
         Expon(base, power) => round5(evaluate(base, valuation) ^ evaluate(power, valuation))
+        Modulo(left, right) => round5(evaluate(left, valuation) % evaluate(right, valuation))
+        Min(left, right) => round5(min(evaluate(left, valuation)), evaluate(right, valuation))
+        Max(left, right) => round5(max(evaluate(left, valuation)), evaluate(right, valuation))
         Sin(base) => round5(sin(evaluate(base, valuation)))
         CoSin(base) => round5(cos(evaluate(base, valuation)))
         Tan(base) => round5(tan(evaluate(base, valuation)))
@@ -93,8 +105,10 @@ function str(expr::ExprLike)::String
         Mul(left, right) => "($(str(left)) * $(str(right)))"
         Sub(left, right) => "($(str(left)) - $(str(right)))"
         Div(left, right) => "($(str(left)) / $(str(right)))"
-        Modulo(left, right) => "($(str(left)) % $(str(right)))"
         Expon(base, power) => "$(str(base))^$(str(power))"
+        Modulo(left, right) => "($(str(left)) % $(str(right)))"
+        Min(left, right) => "min($(str(left)), $(str(right)))"
+        Max(left, right) => "max($(str(left)), $(str(right)))"
         Sin(base) => "sin($(str(base)))"
         CoSin(base) => "cos($(str(base)))"
         Tan(base) => "tan($(str(base)))"
@@ -112,6 +126,9 @@ function is_constant(expr::ExprLike)::Bool
         Sub(left, right) => is_constant(left) && is_constant(right)
         Div(left, right) => is_constant(left) && is_constant(right)
         Expon(base, power) => is_constant(base) && is_constant(power)
+        Modulo(left, right) => is_constant(left) && is_constant(right)
+        Min(left, right) => is_constant(left) && is_constant(right)
+        Max(left, right) => is_constant(left) && is_constant(right)
         Sin(base) => is_constant(base)
         CoSin(base) => is_constant(base)
         Tan(base) => is_constant(base)
@@ -128,8 +145,9 @@ function is_linear(expr::ExprLike)::Bool
         Sub(left, right) => is_linear(left) && is_linear(right)
         Mul(left, right) => (is_constant(left) || is_constant(right)) && (is_linear(left) || is_linear(right))
         Div(left, right) => is_linear(left) && is_constant(right) && (is_linear(left) || is_linear(right))
-        Modulo(left, right) => is_linear(left) && is_constant(right) && (is_linear(left) || is_linear(right))
         Expon(base, power) => is_linear(base) && is_constant(power)
+        Modulo(left, right) => is_linear(left) && is_constant(right) && (is_linear(left) || is_linear(right))
+        # TODO Min, Max
         Sin(base) => is_constant(base)
         CoSin(base) => is_constant(base)
         Tan(base) => is_constant(base)

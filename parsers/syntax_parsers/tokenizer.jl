@@ -60,7 +60,10 @@ keywords::Dict{String, Type} = Dict([
     ("sin",   ExpressionUnaryOperatorToken),
     ("cos",   ExpressionUnaryOperatorToken),
     ("tan",   ExpressionUnaryOperatorToken),
-    ("cot",   ExpressionUnaryOperatorToken)
+    ("cot",   ExpressionUnaryOperatorToken),
+
+    ("min",   ExpressionBinaryFunctionToken),
+    ("max",   ExpressionBinaryFunctionToken)
 ])
 
 # mapping of all operators to their type of token
