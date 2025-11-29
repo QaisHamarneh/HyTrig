@@ -12,7 +12,8 @@ abstract type Node
 end
 
 struct RootNode <: Node
-    config::Configuration
+    parent::Union{Node, Nothing}
+    config::Union{Configuration, Nothing}
     level::Int32
     children::Vector{Node}
 end
@@ -37,8 +38,8 @@ end
 function count_nodes(root::Node)::Int
     # println(root.config.location.name, " - ",  root.config.valuation)
     @match root begin
-        RootNode(_, _, []) => 1
-        RootNode(_, _, children) => 1 + sum(count_nodes(child) for child in children)
+        RootNode(_, _, _, []) => 1
+        RootNode(_, _, _, children) => 1 + sum(count_nodes(child) for child in children)
         ActiveNode(_, _, _, _, _, []) => 1
         ActiveNode(_, _, _, _, _, children) => 1 + sum(count_nodes(child) for child in children)
         PassiveNode(_, _, _, _, []) => 1
@@ -48,8 +49,8 @@ end
 
 function count_passive_nodes(root::Node)::Int
     @match root begin
-        RootNode(_, _, []) => 0
-        RootNode(_, _, children) => sum(count_passive_nodes(child) for child in children)
+        RootNode(_, _, _, []) => 0
+        RootNode(_, _, _, children) => sum(count_passive_nodes(child) for child in children)
         ActiveNode(_, _, _, _, _, []) => 0
         ActiveNode(_, _, _, _, _, children) => sum(count_passive_nodes(child) for child in children)
         PassiveNode(_, _, _, _, []) => 1
@@ -59,8 +60,8 @@ end
 
 function depth_of_tree(root::Node, level::Int = 1)::Int
     @match root begin
-        RootNode(_, _, []) => level
-        RootNode(_, _, children) => maximum(depth_of_tree(child, level + 1) for child in children)
+        RootNode(_, _, _, []) => level
+        RootNode(_, _, _, children) => maximum(depth_of_tree(child, level + 1) for child in children)
         ActiveNode(_, _, _, _, _, []) => level
         ActiveNode(_, _, _, _, _, children) => maximum(depth_of_tree(child, level + 1) for child in children)
         PassiveNode(_, _, _, _, []) => level
@@ -70,7 +71,7 @@ end
 
 function child_time(child::Node)::Float64
     @match child begin
-        RootNode(_, _, _) => 0
+        RootNode(_, _, _, _) => 0
         ActiveNode(_, _, _, _, _, _) => child.config.global_clock
         PassiveNode(_, _, _, _, []) => child.config.global_clock
         PassiveNode(_, _, _, _, children) => child_time(children[1])

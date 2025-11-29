@@ -83,7 +83,7 @@ termination_conditions["state-formula"] = ""
 game_tree::Union{Node, Nothing} = Nothing()
 
 # Declare node model
-node_list::Vector{QNode} = []
+node_list::Vector{QActiveNode} = []
 node_model::JuliaItemModel = JuliaItemModel(node_list)
 
 # Declare callable functions for QML
@@ -310,7 +310,7 @@ function verify()
     empty!(node_list)
 
     if !isnothing(game_tree)
-        push!(node_list, QNode(game_tree))
+        push!(node_list, QActiveNode(game_tree))
         game_tree = game_tree.parent
     end
 
@@ -336,7 +336,8 @@ function up_tree()::Bool
     game_tree = game_tree.parent
 
     for child in game_tree.children
-        push!(node_list, QNode(child))
+        # TODO only get actives and push passives to array
+        push!(node_list, QActiveNode(child))
     end
     return true
 end
@@ -359,7 +360,7 @@ function down_tree(i)::Bool
     if 0 < i <= length(game_tree.children)
         game_tree = game_tree.children[i]
         for child in game_tree.children
-            push!(node_list, QNode(child))
+            push!(node_list, QActiveNode(child))
         end
         return true
     else
