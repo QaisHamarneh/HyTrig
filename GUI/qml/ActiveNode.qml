@@ -49,12 +49,17 @@ Rectangle {
             verticalAlignment: Text.AlignVCenter
         }
 
-        SubtitleText {
+        ScrollView {
             id: node_valuation_text
             width: parent.width
-            text: model.valuation
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
+            height: Math.min(contentHeight, 300)
+
+            SubtitleText {
+                width: node_valuation_text.width
+                text: model.valuation
+                horizontalAlignment: Text.AlignHCenter
+                clip: true
+            }
         }
 
     }

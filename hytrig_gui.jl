@@ -355,9 +355,11 @@ function down_tree(i)::Bool
 
     i = Int(i)
 
-    empty!(node_list)
-
     if 0 < i <= length(game_tree.children)
+        if isempty(game_tree.children[i].children)
+            return false
+        end
+        empty!(node_list)
         game_tree = game_tree.children[i]
         for child in game_tree.children
             push!(node_list, QActiveNode(child))

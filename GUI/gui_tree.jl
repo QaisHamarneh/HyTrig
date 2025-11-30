@@ -45,6 +45,17 @@ function GUINode(node::RootNode, parent::Union{GUINode, Nothing})::GUINode
     )
 end
 
+function GUINode(node::EndNode, parent::Union{GUINode, Nothing})::GUINode
+    return GUINode(
+        parent,
+        nothing,
+        nothing,
+        node.config,
+        [],
+        []
+    )
+end
+
 function build_gui_tree(root::Union{ActiveNode, RootNode})::GUINode
     gui_root = GUINode(root, nothing)
     push!(gui_root.children, GUINode(root, gui_root))
@@ -65,7 +76,9 @@ function _get_next_layer(node::Union{ActiveNode, RootNode}, parent::GUINode)::Ve
         for active in current_node.children
             gui_node = GUINode(active, parent)
             append!(gui_node.passive_nodes, passives)
-            append!(gui_node.children, _get_next_layer(active, gui_node))
+            if !(active isa EndNode)
+                append!(gui_node.children, _get_next_layer(active, gui_node))
+            end
             push!(nodes, gui_node)
         end
     end

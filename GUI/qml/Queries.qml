@@ -38,10 +38,6 @@ Column {
         }
     }
 
-    TreeWindow {
-        id: tree_window
-    }
-
     TitleText {
         id: query_text
         width: parent.width
@@ -80,15 +76,9 @@ Column {
                 visible: model.verified
                 tristate: false
                 checkable: false
+                hoverEnabled: false
                 checkState: model.result ? Qt.Checked : Qt.Unchecked
                 
-                onClicked: {
-                    tree_window.level = 1;
-                    tree_window.node_list.model = [];
-                    tree_window.node_list.model = node_model;
-                    tree_window.show();
-                }
-
             }
 
             // Remove query button

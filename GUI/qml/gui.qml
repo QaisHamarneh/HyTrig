@@ -126,6 +126,9 @@ ApplicationWindow {
         terminations.time_bound.text = termination_conditions["time-bound"];
         terminations.max_steps.text = termination_conditions["max-steps"];
         terminations.state_formula.text = termination_conditions["state-formula"];
+
+        // Refresh menu
+        tree_button.visible = false;
     }
 
     /**
@@ -285,6 +288,8 @@ ApplicationWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 10
 
+            property real button_width: save_as_button.width
+
             // Save dialog
             FileDialog {
                 id: save_dialog
@@ -307,6 +312,11 @@ ApplicationWindow {
                 onAccepted: {
                     load(selectedFile.toString());
                 }
+            }
+
+            // Tree viewer window
+            TreeWindow {
+                id: tree_window
             }
 
             // Save button
@@ -339,7 +349,7 @@ ApplicationWindow {
             // Load button
             Button {
                 id: load_button
-                width: save_as_button.width
+                width: parent.button_width
                 text: "Load"
                 onClicked: {
                     load_dialog.open();
@@ -349,18 +359,34 @@ ApplicationWindow {
             // Verify button
             Button {
                 id: verify_button
-                width: save_as_button.width
+                width: parent.button_width
                 text: "Verify"
                 onClicked: {
                     if (is_savable()) {
                         verify();
+                        tree_button.visible = true;
                     }
                 }
             }
 
+            // Tree viewer button
+            Button {
+                id: tree_button
+                width: parent.button_width
+                visible: false
+                text: "Tree"
+                onClicked: {
+                    tree_window.level = 1;
+                    tree_window.node_list.model = [];
+                    tree_window.node_list.model = node_model;
+                    tree_window.show();
+                }
+            }
+
+            // Dark/Light mode button
             Button {
                 
-                width: save_as_button.width
+                width: parent.button_width
                 height: save_as_button.height
                 icon.source: "icons/dark_mode.png"
                 icon.height: height
