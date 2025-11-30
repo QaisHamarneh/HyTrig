@@ -80,7 +80,7 @@ ApplicationWindow {
         ListView {
             id: node_list
             width: Math.min(contentWidth, tree_window.width)
-            height: 500
+            height: 1000
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 10
             clip: true
@@ -88,55 +88,120 @@ ApplicationWindow {
             orientation: ListView.Horizontal
 
             model: node_model
-            delegate: Button {
-
+            delegate: Column {
+                
                 width: 200
-                height: 140
+                spacing: 10
 
-                background: Rectangle {
-
+                DataText {
                     width: parent.width
-                    height: parent.height
-                    radius: 4
+                    text: model.trigger
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    wrapMode: Text.Wrap
+                }
 
-                    Column {
+                ListView {
+                    id: passive_list
+                    width: parent.width
+                    height: Math.min(contentHeight, 600)
+                    spacing: 5
 
-                        width: parent.width
-                        height: parent.height
-                        spacing: 5
+                    model: passive_nodes
+                    delegate: Rectangle {
 
-                        DataText {
+                        width: passive_list.width
+                        height: 140
+                        radius: 4
+                        
+                        Column {
+
                             width: parent.width
-                            text: "<" + model.agent + ", " + model.action + ">"
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
+                            height: parent.height
+                            spacing: 5
 
-                        DataText {
-                            width: parent.width
-                            text: "↓"
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
+                            DataText {
+                                width: parent.width
+                                text: model.agent
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
 
-                        DataText {
-                            width: parent.width
-                            text: model.location
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
+                            Text {
+                                width: parent.width
+                                text: "↓"
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
 
-                        DataText {
-                            width: parent.width
-                            text: "Time = " + model.time
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+                            DataText {
+                                width: parent.width
+                                text: model.location
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+
+                            DataText {
+                                width: parent.width
+                                text: "Time = " + model.time
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
                         }
                     }
                 }
+                
+                Button {
 
-                onClicked: {
-                    tree_window.down(index);
+                    width: parent.width
+                    height: 140
+
+                    background: Rectangle {
+
+                        width: parent.width
+                        height: parent.height
+                        radius: 4
+
+                        Column {
+
+                            width: parent.width
+                            height: parent.height
+                            spacing: 5
+
+                            DataText {
+                                width: parent.width
+                                text: "<" + model.agent + ", " + model.action + ">"
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+
+                            Text {
+                                width: parent.width
+                                text: "↓"
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+
+                            DataText {
+                                width: parent.width
+                                text: model.location
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+
+                            DataText {
+                                width: parent.width
+                                text: "Time = " + model.time
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                    }
+
+                    onClicked: {
+                        tree_window.down(index);
+                    }
+
                 }
 
             }

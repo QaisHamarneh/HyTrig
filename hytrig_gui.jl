@@ -22,6 +22,7 @@ using Dates
 using JSON3
 using QML
 
+include("GUI/gui_tree.jl")
 include("GUI/QObjects.jl")
 
 include("game_syntax/game.jl")
@@ -80,7 +81,7 @@ termination_conditions["max-steps"] = ""
 termination_conditions["state-formula"] = ""
 
 # Declare last parsed game tree
-game_tree::Union{Node, Nothing} = Nothing()
+game_tree::Union{GUINode, Node, Nothing} = nothing
 
 # Declare node model
 node_list::Vector{QActiveNode} = []
@@ -310,8 +311,8 @@ function verify()
     empty!(node_list)
 
     if !isnothing(game_tree)
-        push!(node_list, QActiveNode(game_tree))
-        game_tree = game_tree.parent
+        game_tree = build_gui_tree(game_tree)
+        push!(node_list, QActiveNode(game_tree.children[1]))
     end
 
     for (i, r) in enumerate(results)
@@ -336,7 +337,6 @@ function up_tree()::Bool
     game_tree = game_tree.parent
 
     for child in game_tree.children
-        # TODO only get actives and push passives to array
         push!(node_list, QActiveNode(child))
     end
     return true
@@ -361,6 +361,7 @@ function down_tree(i)::Bool
         game_tree = game_tree.children[i]
         for child in game_tree.children
             push!(node_list, QActiveNode(child))
+            print(QActiveNode(child).passive_nodes)
         end
         return true
     else

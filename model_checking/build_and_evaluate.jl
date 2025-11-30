@@ -162,9 +162,7 @@ end
 
 function evaluate_queries(game::Game, termination_conditions::Termination_Conditions, queries::Vector{Strategy_Formula}) 
     initial_config = initial_configuration(game)
-    root_parent = RootNode(nothing, nothing, -1, [])
-    root = RootNode(root_parent, initial_config, 0, [])
-    push!(root_parent.children, root)
+    root = RootNode(initial_config, 0, [])
     constraints = get_all_constraints(queries ∪ State_Formula[termination_conditions.state_formula])
 
     results = Vector{Bool}()

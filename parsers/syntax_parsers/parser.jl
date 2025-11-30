@@ -79,7 +79,7 @@ end
 
 function _parse_tokens(tokens::Vector{Token}, level::ParseLevel = strategy)::Union{ASTNode, Nothing}
     if isnothing(tokens) || length(tokens) == 0
-        return Nothing()
+        return nothing
     end
     
     parsed_tokens::ParseVector = ParseVector(tokens)
@@ -110,7 +110,7 @@ function _parse_grammar(tokens::ParseVector, grammar::Grammar)::ParseVector
         if haskey(grammar, typeof(tokens[i])) && !parsed
             consumable_tokens::Dict{Int, GrammarRule} = _get_consumable_tokens(i, tokens, grammar)
             if haskey(consumable_tokens, i) && _is_strongest_operator(typeof(tokens[i]), i, sort(collect(keys(consumable_tokens))), tokens)
-                rule::GrammarRule = get(consumable_tokens, i , Nothing)
+                rule::GrammarRule = get(consumable_tokens, i , nothing)
                 left_tokens::ParseVector = parsed_tokens[(end - length(rule.left_tokens) + 1):end]
                 parsed_tokens = parsed_tokens[1:(end - length(rule.left_tokens))]
                 right_tokens::ParseVector = tokens[(i + 1):(i + length(rule.right_tokens))]

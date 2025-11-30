@@ -12,8 +12,7 @@ abstract type Node
 end
 
 struct RootNode <: Node
-    parent::Union{Node, Nothing}
-    config::Union{Configuration, Nothing}
+    config::Configuration
     level::Int32
     children::Vector{Node}
 end
@@ -86,8 +85,8 @@ end
 function count_nodes(root::Node)::Int
     # println("Level = ", root.level, " - ", root.config.location.name, " - ",  root.config.valuation)
     @match root begin
-        RootNode(_, _, _, []) => 1
-        RootNode(_, _, _, children) => 1 + sum(count_nodes(child) for child in children)
+        RootNode(_, _, []) => 1
+        RootNode(_, _, children) => 1 + sum(count_nodes(child) for child in children)
         ActiveNode(_, _, _, _, _, []) => 1
         ActiveNode(_, _, _, _, _, children) => 1 + sum(count_nodes(child) for child in children)
         PassiveNode(_, _, _, _, []) => 1
@@ -99,8 +98,8 @@ end
 
 function count_passive_nodes(root::Node)::Int
     @match root begin
-        RootNode(_, _, _, []) => 0
-        RootNode(_, _, _, children) => sum(count_passive_nodes(child) for child in children)
+        RootNode(_, _, []) => 0
+        RootNode(_, _, children) => sum(count_passive_nodes(child) for child in children)
         ActiveNode(_, _, _, _, _, []) => 0
         ActiveNode(_, _, _, _, _, children) => sum(count_passive_nodes(child) for child in children)
         PassiveNode(_, _, _, _, []) => 1
@@ -126,8 +125,8 @@ end
 
 function max_time(root::Node)::Float64
     @match root begin
-        RootNode(_, _, _, []) => round5(root.config.global_clock)
-        RootNode(_, _, _, children) => maximum(max_time(child) for child in children)
+        RootNode(_, _, []) => round5(root.config.global_clock)
+        RootNode(_, _, children) => maximum(max_time(child) for child in children)
         ActiveNode(_, _, _, _, _, []) => round5(root.config.global_clock)
         ActiveNode(_, _, _, _, _, children) => maximum(max_time(child) for child in children)
         PassiveNode(_, _, _, _, []) => round5(root.config.global_clock)
@@ -139,7 +138,7 @@ end
 
 function child_time(child::Node)::Float64
     @match child begin
-        RootNode(_, _, _, _) => 0
+        RootNode(_, _, _) => 0
         ActiveNode(_, _, _, _, _, _) => child.config.global_clock
         PassiveNode(_, _, _, _, []) => child.config.global_clock
         PassiveNode(_, _, _, _, children) => child_time(children[1])

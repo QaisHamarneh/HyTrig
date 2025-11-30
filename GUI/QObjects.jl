@@ -261,22 +261,32 @@ mutable struct QActiveNode <: QObject
     location::String
     agent::String
     action::String
+    trigger::String
     time::Float64
     passive_nodes::JuliaItemModel
 end
 
-function QActiveNode(node::Node, passive_nodes::Vector{QPassiveNode})::QActiveNode
-    @match node begin
-        RootNode(_, config, _, _) => QActiveNode(string(config.location), "", "", 0, JuliaItemModel([]))
-        ActiveNode(_, decision, trigger, config, _, _) => 
-            QActiveNode(
-                string(config.location), 
-                tring(decision[1]),
-                string(decision[2]),
-                trunc(config.global_clock, digits=5)
-            )
-        PassiveNode(_, _, _, _, _) => throw(ArgumentError("Passive nodes cannot be parsed to a QActiveNode."))
-    end
+function QActiveNode(node::GUINode)::QActiveNode
+    QActiveNode(
+        string(node.config.location.name),
+        if isnothing(node.reaching_decision)
+            ""
+        else
+            string(node.reaching_decision[1])
+        end,
+        if isnothing(node.reaching_decision)
+            ""
+        else
+            string(node.reaching_decision[2])
+        end,
+        if isnothing(node.reaching_trigger)
+            ""
+        else
+            str(node.reaching_trigger)
+        end,
+        trunc(node.config.global_clock, digits=5),
+        JuliaItemModel([QPassiveNode(passive) for passive in node.passive_nodes])
+    )
 end
 
 """
@@ -289,21 +299,23 @@ A passive tree node used in QML models.
 mutable struct QPassiveNode <: QObject
     location::String
     agent::String
-    action::String
+    constraint::String
     time::Float64
-    passive_nodes::JuliaItemModel
 end
 
-function QActiveNode(node::Node, passive_nodes::Vector{QPassiveNode})::QActiveNode
-    @match node begin
-        RootNode(_, config, _, _) => QActiveNode(string(config.location), "", "", 0, JuliaItemModel([]))
-        ActiveNode(_, decision, trigger, config, _, _) => 
-            QActiveNode(
-                string(config.location), 
-                tring(decision[1]),
-                string(decision[2]),
-                trunc(config.global_clock, digits=5)
-            )
-        PassiveNode(_, _, _, _, _) => throw(ArgumentError("Passive nodes cannot be parsed to a QActiveNode."))
-    end
+function QPassiveNode(node::PassiveNode)::QPassiveNode
+    return QPassiveNode(
+        string(node.config.location.name),
+        if isnothing(node.reaching_decision)
+            ""
+        else
+            string(node.reaching_decision[1])
+        end,
+        if isnothing(node.reaching_decision)
+            ""
+        else
+            str(node.reaching_decision[2])
+        end,
+        trunc(node.config.global_clock, digits=5)
+    )
 end

@@ -188,9 +188,9 @@ function _convert_to_token(token::String, type::Type, bindings::Bindings)::Token
     if token in separators
         return SeparatorToken(token)
     elseif haskey(keywords, token)
-        return get(keywords, token, Nothing)(token)
+        return get(keywords, token, nothing)(token)
     elseif haskey(operators, token)
-        return get(operators, token, Nothing)(token)
+        return get(operators, token, nothing)(token)
     end
 
     if type == NumericToken
