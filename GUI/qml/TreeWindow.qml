@@ -55,6 +55,7 @@ ApplicationWindow {
         level = level + 1;
     }
 
+    // Page filling column
     Column {
 
         id: tree_viewer_page
@@ -70,6 +71,7 @@ ApplicationWindow {
             verticalAlignment: Text.AlignVCenter
         }
 
+        // Layer node list
         ListView {
             id: node_list
             width: Math.min(contentWidth, tree_viewer_page.width)
@@ -112,6 +114,7 @@ ApplicationWindow {
                     verticalAlignment: Text.AlignVCenter
                 }
 
+                // Passive node list
                 ListView {
                     id: passive_list
                     width: parent.width
@@ -123,6 +126,7 @@ ApplicationWindow {
                     delegate: PassiveNode {}
                 }
                 
+                // Active node
                 Button {
 
                     id: active_node
@@ -139,6 +143,7 @@ ApplicationWindow {
             }
         }
 
+        // Return to parent button
         Button {
 
             id: parent_button
@@ -153,6 +158,7 @@ ApplicationWindow {
 
     }
 
+    // Reset tree
     onClosing: {
         while (Julia.up_tree()) {
             level = level - 1;

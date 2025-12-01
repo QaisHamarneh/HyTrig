@@ -49,6 +49,7 @@ Rectangle {
             verticalAlignment: Text.AlignVCenter
         }
 
+        // Scrollable text for long valuations
         ScrollView {
             id: node_valuation_text
             width: parent.width
