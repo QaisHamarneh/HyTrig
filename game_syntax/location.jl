@@ -14,9 +14,9 @@ function Location(name::Symbol,
     return location
 end
 
-function enabled_actions(config, agent::Agent)::Set{Action}
+function enabled_actions(config, agent::Agent)::Vector{Action}
     # Change to filter
-    actions = Set{Action}()
+    actions = Vector{Action}()
     for edge in config.location.edges
         if enabled(edge, config.valuation) && edge.decision.first == agent
             push!(actions, edge.decision.second)

@@ -30,7 +30,7 @@ Calls `tokenize`, `_parse_tokens` and `to_logic`.
 
 # Examples
 ```julia-repl
-julia> parse("a + b", Bindings(Set([]), Set([]), Set(["a", "b"])), expression)
+julia> parse("a + b", Bindings(Vector([]), Vector([]), Vector(["a", "b"])), expression)
 Add(Var(:a), Var(:b))
 ```
 """

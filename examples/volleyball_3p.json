@@ -4,6 +4,13 @@
         "locations": 
         [
             {
+                "name": "initial",
+                "invariant": "",
+                "flow": [
+                ],
+                "initial": true
+            },
+            {
                 "name": "Team_1_Throwing",
                 "invariant": "0 <= z && z <= max_height && 0 <= x && x <= 18 && 0 <= y && y <= 9 && 9 <= C_x && C_x <= 18 && 0 <= C_y && C_y <= 9 && 9 <= D_x && D_x <= 18 && 0 <= D_y && D_y <= 9 && team == 1",
                 "flow": [
@@ -16,7 +23,7 @@
                     {"D_x": "spd_D * dir_D_x"},
                     {"D_y": "spd_D * dir_D_y"}
                 ],
-                "initial": true
+                "initial": false
             },
             {
                 "name": "Team_2_Throwing",
@@ -35,12 +42,12 @@
             }
         ],
         "initial_valuation": [
-            {"x": 8},
-            {"y": 4.5},
-            {"z": 3.5},
-            {"spd_x": 4.13},
+            {"x": 7},
+            {"y": 2},
+            {"z": 2},
+            {"spd_x": 0},
             {"spd_y": 0},
-            {"spd_z": 3.1623},
+            {"spd_z": 0},
             {"target_x": 13},
             {"target_y": 4.5},
             {"A_x": 7},
@@ -59,31 +66,84 @@
             {"dir_C_y": 0},
             {"dir_D_x": 0},
             {"dir_D_y": 0},
-            {"spd_A": 4},
-            {"spd_B": 4},
-            {"spd_C": 3.2},
-            {"spd_D": 3.2},
-            {"team": 1},
+            {"spd_A": 3.5},
+            {"spd_B": 3},
+            {"spd_C": 4},
+            {"spd_D": 3.5},
+            {"team": 0},
             {"max_height": 4},
             {"g": 9.8},
-            {"p1_1_x": 2},
-            {"p1_1_y": 3},
-            {"p2_1_x": 8},
+            {"p1_1_x": 1},
+            {"p1_1_y": 4.5},
+            {"p2_1_x": 4},
             {"p2_1_y": 1},
-            {"p3_1_x": 8},
+            {"p3_1_x": 4},
             {"p3_1_y": 8},
-            {"p1_2_x": 10},
-            {"p1_2_y": 1},
-            {"p2_2_x": 10},
-            {"p2_2_y": 8},
-            {"p3_2_x": 17},
+            {"p1_2_x": 12},
+            {"p1_2_y": 2},
+            {"p2_2_x": 12},
+            {"p2_2_y": 7},
+            {"p3_2_x": 13},
             {"p3_2_y": 4.5}
         ],
-        "points": "Team 1: p1 = (2,4.5), p2 = (6,1), p3 = (6,8); -------- Team 2: p1 = (10,1), p2 = (10,8), p3 = (13,4.5)",
         "agents": ["A", "B", "C", "D"],
         "actions": ["p1", "p2", "p3", "move", "stop"],
         "edges": 
         [
+            {
+                "name": "init_A_p1",
+                "start_location": "initial",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p1"
+                },
+                "jump": [ 
+                    {"target_x": "p1_2_x"},
+                    {"target_y": "p1_2_y"},
+                    {"spd_x": "(p1_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p1_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "init_A_p2",
+                "start_location": "initial",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p2"
+                },
+                "jump": [ 
+                    {"target_x": "p2_2_x"},
+                    {"target_y": "p2_2_y"},
+                    {"spd_x": "(p2_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p2_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "init_A_p3",
+                "start_location": "initial",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p3"
+                },
+                "jump": [ 
+                    {"target_x": "p3_2_x"},
+                    {"target_y": "p3_2_y"},
+                    {"spd_x": "(p3_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p3_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"team": "1"}
+                ]
+            },
             {
                 "name": "A_p1",
                 "start_location": "Team_2_Throwing",
@@ -408,7 +468,7 @@
                 "name": "A_stop",
                 "start_location": "Team_2_Throwing",
                 "target_location": "Team_2_Throwing",
-                "guard": "",
+                "guard": "dir_A_x != 0 || dir_A_y != 0",
                 "decision": 
                 {
                     "A": "stop"
@@ -422,7 +482,7 @@
                 "name": "B_stop",
                 "start_location": "Team_2_Throwing",
                 "target_location": "Team_2_Throwing",
-                "guard": "",
+                "guard": "dir_B_x != 0 || dir_B_y != 0",
                 "decision": 
                 {
                     "B": "stop"
@@ -436,7 +496,7 @@
                 "name": "C_stop",
                 "start_location": "Team_1_Throwing",
                 "target_location": "Team_1_Throwing",
-                "guard": "",
+                "guard": "dir_C_x != 0 || dir_C_y != 0",
                 "decision": 
                 {
                     "C": "stop"
@@ -450,7 +510,7 @@
                 "name": "D_stop",
                 "start_location": "Team_1_Throwing",
                 "target_location": "Team_1_Throwing",
-                "guard": "",
+                "guard": "dir_D_x != 0 || dir_D_y != 0",
                 "decision": 
                 {
                     "D": "stop"
@@ -475,14 +535,11 @@
     },
     "termination-conditions": {
         "time-bound": 300,
-        "max-steps": 8,
+        "max-steps": 15,
         "state-formula": "z <= 0"
     },
     "queries": 
     [
-        "<<A, B>> F x > 9 && z <= 0",
-        "<<A, B>> G x <= 9 -> z > 0",
-        "<<C, D>> F x < 9 && z <= 0",
         "<<C, D>> G x >= 9 -> z > 0"
     ]
 }

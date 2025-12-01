@@ -52,6 +52,20 @@ function valuation_from_vector(valuation::Valuation, vector::Vector{Float64})::V
     return new_valuation
 end
 
+function valuation_from_flow_vector(flow:: ReAssignment,valuation::Valuation, vector::Vector{Float64})::Valuation
+    new_valuation::OrderedDict{Symbol, Float64} = OrderedDict()
+    i = 1
+    for (var, value) in valuation
+        if !(var in keys(flow))
+            new_valuation[var] = value
+        else 
+            new_valuation[var] = vector[i]
+            i += 1
+        end
+    end
+    return new_valuation
+end
+
 function union_safe(l)
     if isempty(l)
         # Return an empty vector with a specific type if known,
