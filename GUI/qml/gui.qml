@@ -122,7 +122,11 @@ ApplicationWindow {
     * Verify the current game.
     */
     function verify() {
-        Julia.verify();
+        var result = Julia.verify()
+        if(result != "") {
+            verify_fail_dialog.informativeText = result;
+            verify_fail_dialog.open();
+        }
 
         // Refresh Queries
         queries.query_list.model = [];
@@ -143,6 +147,14 @@ ApplicationWindow {
         buttons: MessageDialog.Ok
         title: "Load error"
         text: "Could not load from file."
+    }
+
+     // Verify failure dialog
+    MessageDialog {
+        id: verify_fail_dialog
+        buttons: MessageDialog.Ok
+        title: "Verification error"
+        text: "Could not verify current game."
     }
 
     // Window-filling column

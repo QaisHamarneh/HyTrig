@@ -201,11 +201,11 @@ function is_valid_formula(formula, level)::Bool
 end
 
 """
-    verify()
+    verify()::String
 
 Verify the current hybrid game with triggers.
 """
-function verify()
+function verify()::String
     bindings = Bindings(
         collect(x.name for x in agent_list),
         collect(x.name for x in location_list),
@@ -230,6 +230,11 @@ function verify()
     initial_valuation::Valuation = Valuation(
         Variable(var.name) => Base.parse(Float64, var.value) for var in variable_list
     )
+
+    if !check_invariant(Configuration(initial_location, initial_valuation, 0))
+        return "Invariant of initial location is not satisfied."
+    end
+
     agents::Vector{Agent} = [Agent(agent.name) for agent in agent_list]
     actions::Vector{Action} = [Action(action.name) for action in action_list]
     edges::Vector{Edge} = [Edge(
@@ -261,7 +266,7 @@ function verify()
     term_conds = Termination_Conditions(
         Base.parse(Float64, termination_conditions["time-bound"]),
         Base.parse(Int64, termination_conditions["max-steps"]),
-        parse(termination_conditions["state-formula"], bindings, state)
+        parse(String(termination_conditions["state-formula"]), bindings, state)
     )
     queries::Vector{Strategy_Formula} = [parse(query.name, bindings, strategy) for query in query_list]
 
@@ -279,6 +284,8 @@ function verify()
         query_list[i].verified = true
         query_list[i].result = r
     end
+
+    return ""
 end
 
 # Build and run QML GUI

@@ -5,13 +5,8 @@ include("../game_semantics/transitions.jl")
 include("../hybrid_atl/termination_conditions.jl")
 
 
-function check_invariant(node::Node)::Bool
-    if evaluate(node.config.location.invariant, node.config.valuation)
-        return true
-    else 
-        println("Node outside Game Limitation")
-        println(print_tree(node))
-    end
+function check_invariant(config::Configuration)::Bool
+    return evaluate(config.location.invariant, config.valuation)
 end
 
 
@@ -156,7 +151,7 @@ function evaluate_and_build!(game::Game,
             children = sort_children_by_clock_agent(node, agents)
             agents_have_children = false
             for child in children
-                if ! check_invariant(node)
+                if ! check_invariant(node.config)
                     return false
                 end
                 if isa(child, EndNode) || isnothing(child.reaching_decision) || child.reaching_decision.first in agents
@@ -188,7 +183,7 @@ function evaluate_and_build!(game::Game,
             children = sort_children_by_clock_agent(node, agents)
             agents_have_children = false
             for child in children
-                if ! check_invariant(node)
+                if ! check_invariant(node.config)
                     println("Invariant issue!")
                     return false
                 end
