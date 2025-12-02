@@ -8,20 +8,20 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for termination conditions
 Column {
 
     spacing: 10
-    property alias time_bound: time_bound_text_field.text
-    property alias max_steps: max_steps_text_field.text
-    property alias state_formula: state_formula_text_field.text
+    property alias time_bound: time_bound_text_field
+    property alias max_steps: max_steps_text_field
+    property alias state_formula: state_formula_text_field
 
-    Text {
+    TitleText {
         width: parent.width
         text: "Termination conditions"
-        color: "white"
     }
 
     // Time bound and max steps row
@@ -30,126 +30,44 @@ Column {
         width: parent.width
         spacing: 10
 
-        Text {
+        SubtitleText {
             width: state_formula_text.width
             height: parent.height
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             text: "Time bound"
-            color: "white"
         }
 
         // Time bound input field
-        TextField {
+        RegexField {
             id: time_bound_text_field
-            property bool had_focus: false
             width: (
                 parent.width - 3 * parent.spacing - 2 * state_formula_text.width
             ) / 2
-            placeholderText: "Enter time bound"
-
-            background: Rectangle {
-                color: "black"
-                border.width: 1
-            }
-
-            onAccepted: {
-                var regex = /^(([1-9]\d*(\.\d+)?$)|(0\.\d*[1-9])$)/;
-                if (regex.test(text))
-                {
-                    termination_conditions["time-bound"] = text;
-                    placeholderText = "";
-                    background.border.color = "green";
-                    focus = false;
-                }
-                else {
-                    text = "";
-                    placeholderText = "Invalid number";
-                    background.border.color = "red";
-                }
-            }
-            onActiveFocusChanged: {
-                if (had_focus)
-                {
-                    had_focus = false;
-                    var regex = /^(([1-9]\d*(\.\d+)?$)|(0\.\d*[1-9])$)/;
-                    if (regex.test(text))
-                    {
-                        termination_conditions["time-bound"] = text;
-                        placeholderText = "";
-                        background.border.color = "green";
-                        focus = false;
-                    }
-                    else {
-                        text = "";
-                        placeholderText = "Invalid number";
-                        background.border.color = "red";
-                    }
-                } else {
-                    had_focus = focus;
-                }
-            }
+            default_text: "Enter time bound"
+            error_text: "Invalid real number"
+            set_role: (function(x) {termination_conditions["time-bound"] = x;})
+            regex: /^(([1-9]\d*(\.\d+)?$)|(0\.\d*[1-9])$)/
         }
 
-        Text {
+        SubtitleText {
             width: state_formula_text.width
             height: parent.height
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             text: "Max steps"
-            color: "white"
         }
 
         // Max steps input field
-        TextField {
+        RegexField {
             id: max_steps_text_field
-            property bool had_focus: false
             width: (
                 parent.width - 3 * parent.spacing - 2 * state_formula_text.width
             ) / 2
-            placeholderText: "Enter max steps"
-
-            background: Rectangle {
-                color: "black"
-                border.width: 1
-            }
-
-            onAccepted: {
-                var regex = /^[1-9]\d*$/;
-                if (regex.test(text))
-                {
-                    termination_conditions["max-steps"] = text;
-                    placeholderText = "";
-                    background.border.color = "green";
-                    focus = false;
-                }
-                else {
-                    text = "";
-                    placeholderText = "Invalid number";
-                    background.border.color = "red";
-                }
-            }
-            onActiveFocusChanged: {
-                if (had_focus)
-                {
-                    had_focus = false;
-                    var regex = /^[1-9]\d*$/;
-                    if (regex.test(text))
-                    {
-                        termination_conditions["max-steps"] = text;
-                        placeholderText = "";
-                        background.border.color = "green";
-                        focus = false;
-                    }
-                    else {
-                        text = "";
-                        placeholderText = "Invalid number";
-                        background.border.color = "red";
-                    }
-                } else {
-                    had_focus = focus;
-                }
-            }
+            default_text: "Enter max steps"
+            error_text: "Invalid positive integer"
+            set_role: (function(x) {termination_conditions["max-steps"] = x;})
+            regex: /^[1-9]\d*$/
         }
 
     }
@@ -160,61 +78,22 @@ Column {
         width: parent.width
         spacing: 10
 
-        Text {
+        SubtitleText {
             id: state_formula_text
             height: parent.height
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             text: "State formula"
-            color: "white"
         }
 
         // State formula input field
-        TextField {
+        FormulaField {
             id: state_formula_text_field
-            property bool had_focus: false
             width: parent.width - parent.spacing - state_formula_text.width
-            placeholderText: "Enter state formula"
-
-            background: Rectangle {
-                color: "black"
-                border.width: 1
-            }
-
-            onAccepted: {
-                if (is_valid_formula(text, "state"))
-                {
-                    termination_conditions["state-formula"] = text;
-                    placeholderText = "";
-                    background.border.color = "green";
-                    focus = false;
-                }
-                else {
-                    text = "";
-                    placeholderText = "Invalid state formula";
-                    background.border.color = "red";
-                }
-            }
-            onActiveFocusChanged: {
-                if (had_focus)
-                {
-                    had_focus = false;
-                    if (is_valid_formula(text, "state"))
-                    {
-                        termination_conditions["state-formula"] = text;
-                        placeholderText = "";
-                        background.border.color = "green";
-                        focus = false;
-                    }
-                    else {
-                        text = "";
-                        placeholderText = "Invalid state formula";
-                        background.border.color = "red";
-                    }
-                } else {
-                    had_focus = focus;
-                }
-            }
+            default_text: "Enter state formula"
+            error_text: "Invalid state formula"
+            set_role: (function(x) {termination_conditions["state-formula"] = x;})
+            level: "state"
         }
 
     }

@@ -41,23 +41,41 @@ struct Expon <: ExprLike
     power::ExprLike
 end
 
+struct Modulo <: ExprLike
+    left::ExprLike
+    right::ExprLike
+end
+
 struct Sin <: ExprLike
     base::ExprLike
 end
+
 struct CoSin <: ExprLike
     base::ExprLike
 end
+
 struct Tan <: ExprLike
     base::ExprLike
 end
+
 struct CoTan <: ExprLike
     base::ExprLike
 end
 
-# if !isdefined(Main, :ReAssignment)
-#     const 
-ReAssignment = Dict{Variable, <:ExprLike}
-# end
+struct Min <: ExprLike
+    left::ExprLike
+    right::ExprLike
+end
+
+struct Max <: ExprLike
+    left::ExprLike
+    right::ExprLike
+end
+
+
+if !isdefined(Main, :ReAssignment)
+    const ReAssignment = OrderedDict{Variable, ExprLike}
+end
 
 function evaluate(expr::ExprLike, valuation::Valuation)::Float64
     @match expr begin
@@ -69,10 +87,13 @@ function evaluate(expr::ExprLike, valuation::Valuation)::Float64
         Sub(left, right) => round5(evaluate(left, valuation) - evaluate(right, valuation))
         Div(left, right) => round5(evaluate(left, valuation) / evaluate(right, valuation))
         Expon(base, power) => round5(evaluate(base, valuation) ^ evaluate(power, valuation))
+        Modulo(left, right) => round5(evaluate(left, valuation) % evaluate(right, valuation))
         Sin(base) => round5(sin(evaluate(base, valuation)))
         CoSin(base) => round5(cos(evaluate(base, valuation)))
         Tan(base) => round5(tan(evaluate(base, valuation)))
         CoTan(base) => round5(cot(evaluate(base, valuation)))
+        Min(left, right) => round5(min(evaluate(left, valuation), evaluate(right, valuation)))
+        Max(left, right) => round5(max(evaluate(left, valuation), evaluate(right, valuation)))
     end
 end
 
@@ -80,16 +101,19 @@ function str(expr::ExprLike)::String
     @match expr begin
         Const(value) => "$value"
         Var(name) => String(name)
-        Neg(expr1) => "- $(str(expr1))"
+        Neg(expr1) => "(- $(str(expr1)))"
         Add(left, right) => "($(str(left)) + $(str(right)))"
         Mul(left, right) => "($(str(left)) * $(str(right)))"
         Sub(left, right) => "($(str(left)) - $(str(right)))"
         Div(left, right) => "($(str(left)) / $(str(right)))"
         Expon(base, power) => "$(str(base))^$(str(power))"
+        Modulo(left, right) => "($(str(left)) % $(str(right)))"
         Sin(base) => "sin($(str(base)))"
         CoSin(base) => "cos($(str(base)))"
         Tan(base) => "tan($(str(base)))"
         CoTan(base) => "cot($(str(base)))"
+        Min(left, right) => "min($(str(left)), $(str(right)))"
+        Max(left, right) => "max($(str(left)), $(str(right)))"
     end
 end
 
@@ -103,10 +127,13 @@ function is_constant(expr::ExprLike)::Bool
         Sub(left, right) => is_constant(left) && is_constant(right)
         Div(left, right) => is_constant(left) && is_constant(right)
         Expon(base, power) => is_constant(base) && is_constant(power)
+        Modulo(left, right) => is_constant(left) && is_constant(right)
         Sin(base) => is_constant(base)
         CoSin(base) => is_constant(base)
         Tan(base) => is_constant(base)
         CoTan(base) => is_constant(base)
+        Min(left, right) => is_constant(left) && is_constant(right)
+        Max(left, right) => is_constant(left) && is_constant(right)
     end
 end
 
@@ -120,95 +147,12 @@ function is_linear(expr::ExprLike)::Bool
         Mul(left, right) => (is_constant(left) || is_constant(right)) && (is_linear(left) || is_linear(right))
         Div(left, right) => is_linear(left) && is_constant(right) && (is_linear(left) || is_linear(right))
         Expon(base, power) => is_linear(base) && is_constant(power)
+        Modulo(left, right) => is_linear(left) && is_constant(right) && (is_linear(left) || is_linear(right))
         Sin(base) => is_constant(base)
         CoSin(base) => is_constant(base)
         Tan(base) => is_constant(base)
         CoTan(base) => is_constant(base)
+        Min(left, right) => is_linear(left) && is_linear(right)
+        Max(left, right) => is_linear(left) && is_linear(right)
     end
 end
-
-# function simplify(expr::ExprLike)::ExprLike
-#     @match expr begin
-#         Const(value) => Const(value)
-#         Var(name) => Var(name)
-
-#         Add(Const(0), right) => right
-#         Add(left, Const(0)) => left
-#         Mul(Const(0), right) => Const(0)
-#         Mul(left, Const(0)) => Const(0)
-#         Mul(Const(1), right) => right
-#         Mul(left, Const(1)) => left
-#         Sub(left, Const(0)) => left
-#         Sub(Const(0), right) => Mul(Const(-1), right)
-#         Div(left, Const(1)) => left
-#         Expon(left, Const(1)) => left
-#         Expon(Const(1), power) => Const(1)
-#         Expon(base, Const(0)) => Const(1)
-        
-#         Neg(expr1) => Neg(simplify(expr1))
-
-#         Add(left, right) => begin
-#             left_simplified = simplify(left)
-#             right_simplified = simplify(right)
-#             if left_simplified isa Const && right_simplified isa Const
-#                 Const(left_simplified.value + right_simplified.value)
-#             elseif left_simplified == right_simplified
-#                 Mul(Const(2), left_simplified)
-#             else
-#                 Add(left_simplified, right_simplified)
-#             end
-#         end
-#         Mul(left, right) => begin
-#             left_simplified = simplify(left)
-#             right_simplified = simplify(right)
-#             if left_simplified isa Const && right_simplified isa Const
-#                 Const(left_simplified.value * right_simplified.value)
-#             elseif left_simplified == right_simplified
-#                 Expon(left_simplified, Const(2))
-#             else
-#                 Mul(left_simplified, right_simplified)
-#             end
-#         end
-#         Sub(left, right) => begin
-#             left_simplified = simplify(left)
-#             right_simplified = simplify(right)
-#             if left_simplified isa Const && right_simplified isa Const
-#                 Const(left_simplified.value - right_simplified.value)
-#             elseif left_simplified == right_simplified
-#                 Const(0)
-#             else
-#                 Sub(left_simplified, right_simplified)
-#             end
-#         end
-#         Div(left, right) => begin
-#             left_simplified = simplify(left)
-#             right_simplified = simplify(right)
-#             if left_simplified isa Const && right_simplified isa Const
-#                 Const(left_simplified.value / right_simplified.value)
-#             elseif left_simplified == right_simplified && left_simplified != Const(0)
-#                 Const(1)
-#             else
-#                 Div(left_simplified, right_simplified)
-#             end
-#         end
-#         Expon(base, power) => begin
-#             base_simplified = simplify(base)
-#             power_simplified = simplify(power)
-#             if base_simplified isa Const && power_simplified isa Const
-#                 Const(base_simplified.value / power_simplified.value)
-#             else
-#                 Div(base_simplified, power_simplified)
-#             end
-#         end
-#     end
-# end
-
-
-# println(evaluate(Add(Var(:x), Const(5)), OrderedDict(:x => 10))) # Should return 15.0
-# println(evaluate(Mul(Var(:x), Var(:y)), OrderedDict(:x => 2, :y => 3))) # Should return 6.0
-# println(evaluate(Sub(Const(10), Var(:x)), OrderedDict(:x => 4))) # Should return 6.0
-# println(evaluate(Div(Var(:x), Const(2)), OrderedDict(:x => 8))) # Should return 4.0
-
-# str(simplify(Mul(Add(Var(:x), Var(:x)), Var(:x)))) # Should return Mul(Var(:x), Const(2))
-
-# println(is_linear(Sub(Div(Var(:x), Const(2)), Neg(Mul(Var(:y), Const(2)))))) # Should return 4.0

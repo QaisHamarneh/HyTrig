@@ -24,7 +24,7 @@ include("tokens.jl")
 
 Bindings contain binded variable, location or agent names.
 
-    Bindings(agents::Set{String}, locations::Set{String}, variables::Set{String})
+    Bindings(agents::Set{String}, locations::Set{String}, variables::Set{String})::Bindings
 
 Create Bindings of `agents`, `locations` and `variables`.
 """
@@ -34,8 +34,17 @@ struct Bindings
     variables::Set{String}
 end
 
+"""
+    Bindings(agents::Vector{String}, locations::Vector{String}, variables::Vector{String})::Bindings
+
+Create Bindings of `agents`, `locations` and `variables`.
+"""
+function Bindings(agents::Vector, locations::Vector, variables::Vector)::Bindings
+    return Bindings(Set(agents), Set(locations), Set(variables))
+end
+
 # set of all valid separators
-separators::Set{String} = Set([
+separators::Vector{String} = Vector([
     ",",
     "(",
     ")"
@@ -52,7 +61,7 @@ keywords::Dict{String, Type} = Dict([
     ("or",    StrategyBinaryOperatorToken),
     ("imply", StrategyBinaryOperatorToken),
 
-    ("deadlock", StateConstantToken),
+    ("deadlock", StrategyConstantToken),
 
     ("true",  BooleanToken),
     ("false", BooleanToken),
@@ -60,7 +69,10 @@ keywords::Dict{String, Type} = Dict([
     ("sin",   ExpressionUnaryOperatorToken),
     ("cos",   ExpressionUnaryOperatorToken),
     ("tan",   ExpressionUnaryOperatorToken),
-    ("cot",   ExpressionUnaryOperatorToken)
+    ("cot",   ExpressionUnaryOperatorToken),
+
+    ("min",   ExpressionBinaryFunctionToken),
+    ("max",   ExpressionBinaryFunctionToken)
 ])
 
 # mapping of all operators to their type of token
@@ -69,6 +81,7 @@ operators::Dict{String, Type} = Dict([
     ("*",  ExpressionBinaryOperatorToken),
     ("/",  ExpressionBinaryOperatorToken),
     ("^",  ExpressionBinaryOperatorToken),
+    ("%",  ExpressionBinaryOperatorToken),
 
     ("-",  ExpressionUnBinaryOperatorToken),
 
@@ -94,23 +107,23 @@ operators::Dict{String, Type} = Dict([
 ])
 
 # all symbols that occur in separators
-separator_symbols::Set{Char} = Set(union(
+separator_symbols::Vector{Char} = Vector(union(
     collect(Iterators.flatten(collect(separators)))
 ))
 
 # all symbols that occur in operators
-operator_symbols::Set{Char} = Set(union(
+operator_symbols::Vector{Char} = Vector(union(
     collect(Iterators.flatten(keys(operators)))
 ))
 
 # all allowed symbols for custom tokens
-unreserved_symbols::Set{Char} = Set(union(
+unreserved_symbols::Vector{Char} = Vector(union(
     collect(Iterators.map(x -> Char(x), 65:90)),        # symbols A-Z
     collect(Iterators.map(x -> Char(x), 97:122))        # symbols a-z
 ))
 
 # numeric symbols
-numeric_symbols::Set{Char} = Set(union(
+numeric_symbols::Vector{Char} = Vector(union(
     collect(Iterators.map(x -> Char(x), 48:57)),        # symbols 0-9
 ))
 
@@ -125,7 +138,7 @@ Convert an input string `str` into ordered tokens.
 
 # Examples
 ```julia-repl
-julia> tokenize("a + b", Bindings(Set([]), Set([]), Set(["a", "b"])))
+julia> tokenize("a + b", Bindings([], [], ["a", "b"]))
 3-element Vector{Token}:
  VariableToken("a")
  OperatorToken("+")
@@ -133,7 +146,7 @@ julia> tokenize("a + b", Bindings(Set([]), Set([]), Set(["a", "b"])))
 ```
 """
 function tokenize(str::String, bindings::Bindings)::Vector{Token}
-    if intersect(bindings.agents, bindings.locations, bindings.variables) != Set([])
+    if intersect(bindings.agents, bindings.locations, bindings.variables) != Set()
         throw(TokenizeError("A name is binded ambiguously."))
     end
 
@@ -148,10 +161,10 @@ function tokenize(str::String, bindings::Bindings)::Vector{Token}
     end
 
     # determine current set of symbols
-    current_symbols::Set{Char} = Set{Char}([])
+    current_symbols::Vector{Char} = Vector{Char}([])
     current_type::Type = Nothing
     if str[1] in separator_symbols
-        current_symbols = Set([])
+        current_symbols = Vector([])
         current_type = SeparatorToken
     elseif str[1] in operator_symbols
         current_symbols = operator_symbols
@@ -184,9 +197,9 @@ function _convert_to_token(token::String, type::Type, bindings::Bindings)::Token
     if token in separators
         return SeparatorToken(token)
     elseif haskey(keywords, token)
-        return get(keywords, token, Nothing)(token)
+        return get(keywords, token, nothing)(token)
     elseif haskey(operators, token)
-        return get(operators, token, Nothing)(token)
+        return get(operators, token, nothing)(token)
     end
 
     if type == NumericToken

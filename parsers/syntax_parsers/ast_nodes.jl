@@ -12,11 +12,11 @@ This file contains all definitions needed to parse tokens to an AST.
 - `Agents`: node for agent lists
 - `StrategyNode`: abstract type for strategy nodes
 - `Quantifier`: node for quantified strategies
+- `StrategyConstant`: node for deadlocks
 - `StrategyUnaryOperation`: node for unary operations on strategies
 - `StrategyBinaryOperation`: node for binary operations on strategies
 - `StateNode`: abstract type for state nodes
 - `LocationNode`: node for locations
-- `StateConstant`: node for deadlocks
 - `StateUnaryOperation`: node for unary operations on states
 - `StateBinaryOperation`: node for binary operations on states
 - `ConstraintNode`: abstract type for constraint nodes
@@ -35,11 +35,11 @@ The types are hierarchically ordered as follows:
     |-- Agents
     |-- StrategyNode
     |   |-- Quantifier
+    |   |-- StrategyConstant
     |   |-- StrategyUnaryOperation
     |   |-- StrategyBinaryOperation
     |   |-- StateNode
     |       |-- LocationNode
-    |       |-- StateConstant
     |       |-- StateUnaryOperation
     |       |-- StateBinaryOperation
     |       |-- ConstraintNode
@@ -121,6 +121,19 @@ abstract type StrategyNode <: ASTNode
 end
 
 """
+    StrategyConstant <: StateNode
+
+AST Node for deadlocks.
+
+    StrategyConstant(value::String)
+
+Create a StrategyConstant with value `value`.
+"""
+struct StrategyConstant <: StrategyNode
+    value::String
+end
+
+"""
     StrategyUnaryOperation <: StrategyNode
 
 AST Node for unary operations on strategies.
@@ -176,19 +189,6 @@ AST Node for locations.
 Create a LocationNode for a location with name `value`.
 """
 struct LocationNode <: StateNode
-    value::String
-end
-
-"""
-    StateConstant <: StateNode
-
-AST Node for deadlocks.
-
-    StateConstant(value::String)
-
-Create a StateConstant with value `value`.
-"""
-struct StateConstant <: StateNode
     value::String
 end
 
@@ -325,7 +325,7 @@ Base.:(==)(x::Quantifier, y::Quantifier) = (
 )
 
 # group operation types
-const ConstantOperation = Union{LocationNode, StateConstant, ConstraintConstant, ExpressionConstant, VariableNode}
+const ConstantOperation = Union{LocationNode, StrategyConstant, ConstraintConstant, ExpressionConstant, VariableNode}
 const UnaryOperation = Union{StrategyUnaryOperation, StateUnaryOperation, ConstraintUnaryOperation, ExpressionUnaryOperation}
 const BinaryOperation = Union{StrategyBinaryOperation, StateBinaryOperation, ConstraintBinaryOperation, ExpressionBinaryOperation}
 
@@ -380,7 +380,11 @@ julia> to_string(ExpressionBinaryOperation("+", VariableNode("x"), VariableNode(
 ```
 """
 function to_string(node::BinaryOperation)::String
-    return "($(to_string(node.left_child)))$(node.binary_operation)($(to_string(node.right_child)))"
+    if node.binary_operation in ["min", "max"]
+        return "$(node.binary_operation)($(to_string(node.left_child)),$(to_string(node.right_child)))"
+    else
+        return "($(to_string(node.left_child)))$(node.binary_operation)($(to_string(node.right_child)))"
+    end
 end
 
 """

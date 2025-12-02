@@ -8,6 +8,7 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for actions
@@ -29,25 +30,25 @@ Column {
             if (!Julia.has_name(action))
             {
                 action_model.appendRow({name: action});
-                action_text_field.placeholderText = "Enter name";
-                action_text_field.background.border.color = "black";
+                action_text_field.text = "";
+                action_text_field.placeholderText = action_text_field.default_text;
+                action_text_field.placeholderTextColor = action_text_field.default_color;
+                return;
             }
             else {
-                action_text_field.placeholderText = "Name in use";
-                action_text_field.background.border.color = "red";
+                action_text_field.placeholderText = "Name is already used";
             }
         }
         else {
-            action_text_field.placeholderText = "Invalid name";
-            action_text_field.background.border.color = "red";
+            action_text_field.placeholderText = "Invalid action name";
         }
-        action_text_field.text = "";
+        action_text_field.placeholderTextColor = action_text_field.error_color;
     }
 
-    Text {
+    TitleText {
+        id: action_text
         width: parent.width
         text: "Actions"
-        color: "white"
     }
 
     // List of actions
@@ -55,7 +56,7 @@ Column {
 
         id: action_list
         width: parent.width
-        height: Math.min(contentHeight, 100)
+        height: parent.height - 2 * parent.spacing - action_text.height - action_input_row.height
         clip: true
 
         model: action_model
@@ -64,19 +65,14 @@ Column {
             width: action_list.width
             spacing: 10
 
-            Text {
-
+            DataText {
                 id: action_name
                 width: parent.width - parent.spacing - action_button.width
                 text: model.name
-                color: "white"
-
             }
 
             // Remove action button
-            Button {
-                text: "-"
-                height: parent.height
+            RemoveButton {
                 onClicked: {
                     action_model.removeRow(index);
                 }
@@ -86,7 +82,7 @@ Column {
 
         ScrollBar.vertical: ScrollBar {
             active: true
-            policy: ScrollBar.AsNeeded
+            policy: ScrollBar.AlwaysOn
         }
 
     }
@@ -94,34 +90,24 @@ Column {
     // Add action row
     Row {
 
+        id: action_input_row
         width: parent.width
         spacing: 10
 
         // Action name input field
-        TextField {
+        InputField {
             id: action_text_field
             width: parent.width - parent.spacing - action_button.width
-            placeholderText: "Enter name"
-
-            background: Rectangle {
-                color: "black"
-                border.width: 1
-            }
+            default_text: "Enter action name"
 
             onAccepted: {
                 actions.add_action(action_text_field.text);
             }
-            onActiveFocusChanged: {
-                placeholderText = "Enter name";
-                background.border.color = "black";
-            }
         }
 
         // Add action button
-        Button {
+        AddButton {
             id: action_button
-            Layout.fillHeight: false
-            text: "+"
             onClicked: {
                 actions.add_action(action_text_field.text);
             }

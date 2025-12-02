@@ -1,58 +1,55 @@
-# using Ranges   # Remove this line
 include("packages.jl")
 include("parsers/parse_game.jl")
-include("game_tree/triggers_based_game_tree.jl")
 include("model_checking/build_and_evaluate.jl")
-using DataStructures
 
+example = 1
+all_info = true
 
 t1 = time();
-
-example = 3
-
 if example == 1
     game, termination_conditions, queries = parse_game("examples/bouncing_ball.json")
 elseif example == 2
     game, termination_conditions, queries = parse_game("examples/3_players_1_ball.json")
 elseif example == 3
-    game, termination_conditions, queries = parse_game("examples/player_in_middle.json")
+    game, termination_conditions, queries = parse_game("examples/4_player_square.json")
+elseif example == 4
+    game, termination_conditions, queries = parse_game("examples/volleyball.json")
+elseif example == 5
+    game, termination_conditions, queries = parse_game("examples/volleyball_3p.json")
 end
+
 
 t2 = time();
 
-
-game_tree::Node = build_game_tree(game, termination_conditions, queries)
+if all_info
+    println("Locations = ", length(game.locations))
+    println("Edges = ", length(game.edges))
+    println("Agents = ", length(game.agents))
+    println("Actions = ", length(game.actions))
+    println("Triggers per agent = ", Dict(agent => length(game.triggers[agent]) for agent in game.agents))
+    println("Initial Configurations = ", initial_configuration(game).valuation)
+    println("*************************")
+    println("Time to parse = $(round5(t2 - t1))")
+    println("*************************")
+end
 
 t3 = time();
-
-results = evaluate(queries, game_tree, game.agents)
+results, game_tree = evaluate_queries(game, termination_conditions, queries)
 
 t4 = time();
-
 nodes_count, passive_nodes = count_nodes(game_tree), count_passive_nodes(game_tree)
 tree_depth = depth_of_tree(game_tree)
+tree_max_time = max_time(game_tree)
 
-##################################
-t5 = time();
+tree_text = print_tree(game_tree)
+io = open("logs/tree.md", "w");                                                                                                                                                                                                                                                                                                                               
+write(io, tree_text);                                                                                                                                                                                                                                                                                                                                                           
+close(io); 
 
-results_on_demand, game_tree_on_demand = evaluate_queries(game, termination_conditions, queries)
 
-t6 = time();
-
-nodes_count_on_demand, passive_nodes_on_demand = count_nodes_on_demand(game_tree_on_demand), count_passive_nodes_on_demand(game_tree_on_demand)
-tree_depth_on_demand = depth_of_tree_on_demand(game_tree_on_demand)
-
-println("*************************")
-println("Time to parse = $(t2 - t1)")
-println("queries = ", queries)
-# println("*************************")
-# println("Nodes = ", nodes_count, " Passive Nodes = ", passive_nodes, " Depth = ", tree_depth)
-# println("results = ", results)
-# println("Time to build = $(t3 - t2)")
-# println("Time to evaluate = $(t4 - t3)")
 println("*************************")
 println("***** On the fly ********")
-println("Nodes = ", nodes_count_on_demand, " Passive Nodes = ", passive_nodes_on_demand, " Depth = ", tree_depth_on_demand)
-println("results = ", results_on_demand)
-println("Time to evaluate and build = $(t6 - t5)")
-println("*************************")
+println("Nodes = ", nodes_count, " Passive Nodes = ", passive_nodes, " Depth = ", tree_depth, " Max Time = ", tree_max_time)
+println("results = ", results)
+println("***************************")
+println("Time to evaluate and build = $(round5(t4 - t3))")

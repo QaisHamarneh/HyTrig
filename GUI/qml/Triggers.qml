@@ -8,6 +8,7 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for triggers
@@ -16,10 +17,10 @@ Column {
     spacing: 10
     property alias trigger_list: trigger_list
 
-    Text {
+    TitleText {
+        id: trigger_text
         width: parent.width
         text: "Triggers"
-        color: "white"
     }
 
     // List of agents
@@ -27,7 +28,8 @@ Column {
 
         id: trigger_list
         width: parent.width
-        height: Math.min(contentHeight, 200)
+        height: parent.height - parent.spacing - trigger_text.height
+        spacing: 10
         clip: true
 
         model: agent_model
@@ -46,14 +48,14 @@ Column {
                 if (is_valid_formula(trigger, "constraint"))
                 {
                     model.triggers.appendRow({name: trigger});
-                    trigger_text_field.placeholderText = "Enter trigger";
-                    trigger_text_field.background.border.color = "black";
+                    trigger_text_field.text = "";
+                    trigger_text_field.placeholderText = default_text;
+                    trigger_text_field.placeholderTextColor = trigger_text_field.default_color;
                 }
                 else {
                     trigger_text_field.placeholderText = "Invalid trigger";
-                    trigger_text_field.background.border.color = "red";
+                    trigger_text_field.placeholderTextColor = trigger_text_field.error_color;
                 }
-                trigger_text_field.text = "";
             }
 
             /**
@@ -65,21 +67,12 @@ Column {
                 model.triggers.removeRow(index);
             }
 
-            Rectangle {
-
-                width: parent.width
-                height: 3
-                visible: index != 0
-                radius: 4
-                color: "grey"
-
-            }
+            Subspacer {}
 
             // Agent name
-            Text {
+            SubtitleText {
                 width: parent.width
                 text: model.name
-                color: "white"
             }
 
             // List of triggers for the current agent
@@ -98,16 +91,13 @@ Column {
                     spacing: 10
 
                     // Trigger formula
-                    Text {
+                    DataText {
                         width: parent.width -parent.spacing - trigger_button.width
                         text: model.name
-                        color: "white"
                     }
 
                     // Remove trigger button
-                    Button {
-                        text: "-"
-                        height: parent.height
+                    RemoveButton {
                         onClicked: {
                             triggers.removeRow(index);
                         }
@@ -124,30 +114,19 @@ Column {
                 spacing: 10
 
                 // Trigger input field
-                TextField {
+                InputField {
                     id: trigger_text_field
                     width: parent.width - parent.spacing - trigger_button.width
-                    placeholderText: "Enter trigger"
-
-                    background: Rectangle {
-                        color: "black"
-                        border.width: 1
-                    }
+                    default_text: "Enter trigger"
 
                     onAccepted: {
                         add_trigger(text);
                     }
-                    onActiveFocusChanged: {
-                        placeholderText = "Enter trigger";
-                        background.border.color = "black";
-                    }
                 }
 
                 // Add trigger button
-                Button {
+                AddButton {
                     id: trigger_button
-                    Layout.fillHeight: false
-                    text: "+"
                     onClicked: {
                         add_trigger(trigger_text_field.text);
                     }
@@ -159,7 +138,7 @@ Column {
 
         ScrollBar.vertical: ScrollBar {
             active: true
-            policy: ScrollBar.AsNeeded
+            policy: ScrollBar.AlwaysOn
         }
 
     }

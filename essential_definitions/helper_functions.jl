@@ -1,4 +1,8 @@
 using DataStructures
+using Match
+
+include("iliases.jl")
+include("constraint.jl")
 
 function round5(num::Float64)::Float64
     return round(num, digits=5)
@@ -44,6 +48,20 @@ function valuation_from_vector(valuation::Valuation, vector::Vector{Float64})::V
     new_valuation::OrderedDict{Symbol, Float64} = OrderedDict()
     for (i, (var, _)) in enumerate(valuation)
         new_valuation[var] = vector[i]
+    end
+    return new_valuation
+end
+
+function valuation_from_flow_vector(flow:: ReAssignment,valuation::Valuation, vector::Vector{Float64})::Valuation
+    new_valuation::OrderedDict{Symbol, Float64} = OrderedDict()
+    i = 1
+    for (var, value) in valuation
+        if !(var in keys(flow))
+            new_valuation[var] = value
+        else 
+            new_valuation[var] = vector[i]
+            i += 1
+        end
     end
     return new_valuation
 end

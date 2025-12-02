@@ -11,3 +11,10 @@ function initial_configuration(game::Game)::Configuration
                   game.initial_valuation,
                   0.0)
 end
+
+# redefine comparison
+Base.:(==)(x::Configuration, y::Configuration) = (
+    x.location.name == y.location.name &&
+    x.valuation == y.valuation &&
+    x.global_clock == y.global_clock
+)

@@ -3,10 +3,10 @@ include("../hybrid_atl/logic.jl")
 using Match
 
 
-function to_logic(node::ConstantOperation)::Union{State_Location, State_Deadlock, Truth, Const, Var}
+function to_logic(node::ConstantOperation)::Union{State_Location, Strategy_Deadlock, Truth, Const, Var}
     @match node begin
         LocationNode(value) => State_Location(Symbol(value))
-        StateConstant(value) => State_Deadlock()
+        StrategyConstant(value) => Strategy_Deadlock()
         ConstraintConstant(value) => Truth(value)
         ExpressionConstant(value) => Const(value)
         VariableNode(value) => Var(Symbol(value))
@@ -30,6 +30,9 @@ function to_logic(node::ExpressionBinaryOperation)::ExprLike
         "*" => Mul(to_logic(node.left_child), to_logic(node.right_child))
         "/" => Div(to_logic(node.left_child), to_logic(node.right_child))
         "^" => Expon(to_logic(node.left_child), to_logic(node.right_child))
+        "%" => Modulo(to_logic(node.left_child), to_logic(node.right_child))
+        "min" => Min(to_logic(node.left_child), to_logic(node.right_child))
+        "max" => Max(to_logic(node.left_child), to_logic(node.right_child))
     end
 end
 
@@ -143,12 +146,12 @@ function to_logic(node::Quantifier)::Strategy_Formula
     end
 end
 
-function to_logic(node::Agents)::Set{Agent}
+function to_logic(node::Agents)::Vector{Agent}
     return to_logic(node.agents)
 end
 
-function to_logic(node::AgentList)::Set{Agent}
-    agents::Set{Agent} = Set([])
+function to_logic(node::AgentList)::Vector{Agent}
+    agents::Vector{Agent} = Vector([])
     for agent in node.agents
         push!(agents, Agent(Symbol(agent)))
     end

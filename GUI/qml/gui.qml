@@ -10,6 +10,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
+import QtQuick.Controls.Material
 import org.julialang
 
 // HyTrig application window
@@ -20,11 +21,14 @@ ApplicationWindow {
     visible: true
     width: 1920
     minimumWidth: 1000
-    maximumWidth: 3000
     height: 1080
     minimumHeight: 800
-    maximumHeight: 2000
     title: "HyTrig"
+
+    Material.theme: Material.Dark
+    Material.accent: Material.Blue
+
+    property string file_path: ""
 
     /**
     * Check if a formula is valid on a given parse level
@@ -38,10 +42,32 @@ ApplicationWindow {
 
     /**
     * Check if the current game is savable
-    * @return {Boolean}         True, if current state is savable
+    * @return {Boolean}         True, if current game is savable
     */
-    function is_saveable() {
-        return true; //TODO: check invalid params
+    function is_savable() {
+        if (termination_conditions["time-bound"] == "") {
+            terminations.time_bound.placeholderTextColor = terminations.time_bound.error_color;
+            save_fail_dialog.informativeText = "Time bound is invalid."
+            save_fail_dialog.open();
+            return false;
+        }
+        if (termination_conditions["max-steps"] == "") {
+            terminations.max_steps.placeholderTextColor = terminations.max_steps.error_color;
+            save_fail_dialog.informativeText = "Max steps is invalid."
+            save_fail_dialog.open();
+            return false;
+        }
+        if (location_model.rowCount() == 0) {
+            save_fail_dialog.informativeText = "At least one location is required."
+            save_fail_dialog.open();
+            return false;
+        }
+        if (!Julia.is_savable()) {
+            save_fail_dialog.informativeText = "Flows and jumps cannot be empty."
+            save_fail_dialog.open();
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -50,6 +76,7 @@ ApplicationWindow {
     */
     function save(path) {
         Julia.save_to_json(path);
+        file_path = path;
     }
 
     /**
@@ -63,6 +90,8 @@ ApplicationWindow {
             load_fail_dialog.open();
             return;
         }
+
+        file_path = path;
 
         // Refresh ListViews
         variables.variable_list.model = [];
@@ -81,17 +110,23 @@ ApplicationWindow {
         queries.query_list.model = query_model;
 
         // Refresh termination conditions
-        terminations.time_bound = termination_conditions["time-bound"];
-        terminations.max_steps = termination_conditions["max-steps"];
-        terminations.state_formula = termination_conditions["state-formula"];
+        terminations.time_bound.text = termination_conditions["time-bound"];
+        terminations.max_steps.text = termination_conditions["max-steps"];
+        terminations.state_formula.text = termination_conditions["state-formula"];
 
-        // Refresh visibility of triggers
-        triggers.visible = agent_model.rowCount() > 0;
-        trigger_spacer.visible = agent_model.rowCount() > 0;
+        // Refresh menu
+        tree_button.visible = false;
     }
 
+    /**
+    * Verify the current game.
+    */
     function verify() {
-        Julia.verify();
+        var result = Julia.verify()
+        if(result != "") {
+            verify_fail_dialog.informativeText = result;
+            verify_fail_dialog.open();
+        }
 
         // Refresh Queries
         queries.query_list.model = [];
@@ -100,9 +135,26 @@ ApplicationWindow {
 
     // Load failure dialog
     MessageDialog {
+        id: save_fail_dialog
+        buttons: MessageDialog.Ok
+        title: "Save error"
+        text: "Could not save current game."
+    }
+
+    // Load failure dialog
+    MessageDialog {
         id: load_fail_dialog
         buttons: MessageDialog.Ok
-        text: "Could not load from file"
+        title: "Load error"
+        text: "Could not load from file."
+    }
+
+     // Verify failure dialog
+    MessageDialog {
+        id: verify_fail_dialog
+        buttons: MessageDialog.Ok
+        title: "Verification error"
+        text: "Could not verify current game."
     }
 
     // Window-filling column
@@ -123,7 +175,8 @@ ApplicationWindow {
             // Left window side
             Column {
 
-                id: left_column
+                property real subwindow_height: (height - 8 * spacing - 4 * action_variable_spacer.height - terminations.height) / 4
+
                 width: (parent.width - 2 * parent.spacing - page_separator.width) / 2
                 height: parent.height
                 spacing: 10
@@ -132,52 +185,47 @@ ApplicationWindow {
                 Row {
 
                     width: parent.width
+                    height: parent.subwindow_height
                     spacing: 20
                     
                     Agents {
                         id: agents
                         width: (parent.width - parent.spacing) / 2
+                        height: parent.height
                     }
 
                     Actions {
                         id: actions
                         width: (parent.width - parent.spacing) / 2
+                        height: parent.height
                     }
 
                 }
 
-                Rectangle {
-                    width: parent.width
-                    height: 5
-                    radius: 4
-                    color: "white"
+                Spacer {
+                    id: action_variable_spacer
+                    vertical: false
                 }
 
                 Variables {
                     id: variables
                     width: parent.width
+                    height: parent.subwindow_height
                 }
 
-                Rectangle {
+                Spacer {
                     id: trigger_spacer
-                    width: parent.width
-                    height: 5
-                    visible: agent_model.rowCount() > 0
-                    radius: 4
-                    color: "white"
+                    vertical: false
                 }
 
                 Triggers {
                     id: triggers
                     width: parent.width
-                    visible: agent_model.rowCount() > 0
+                    height: parent.subwindow_height
                 }
 
-                Rectangle {
-                    width: parent.width
-                    height: 5
-                    radius: 4
-                    color: "white"
+                Spacer {
+                    vertical: false
                 }
 
                 TerminationConditions {
@@ -185,30 +233,27 @@ ApplicationWindow {
                     width: parent.width
                 }
 
-                Rectangle {
-                    width: parent.width
-                    height: 5
-                    radius: 4
-                    color: "white"
+                Spacer {
+                    vertical: false
                 }
 
                 Queries {
                     id: queries
                     width: parent.width
+                    height: parent.subwindow_height
                 }
 
             }
 
-            Rectangle {
+            Spacer {
                 id: page_separator
-                width: 5
-                height: parent.height
-                radius: 4
-                color: "white"
+                vertical: true
             }
 
             // Right window side
             Column {
+
+                property real subwindow_height: (height - 2 * spacing - location_edge_spacer.height) / 2
 
                 width: (parent.width - 2 * parent.spacing - page_separator.width) / 2
                 height: parent.height
@@ -217,18 +262,18 @@ ApplicationWindow {
                 Locations {
                     id: locations
                     width: parent.width
+                    height: parent.subwindow_height
                 }
 
-                Rectangle {
-                    width: parent.width
-                    height: 5
-                    radius: 4
-                    color: "white"
+                Spacer {
+                    id: location_edge_spacer
+                    vertical: false
                 }
 
                 Edges {
                     id: edges
                     width: parent.width
+                    height: parent.subwindow_height
                 }
 
             }
@@ -241,6 +286,8 @@ ApplicationWindow {
             id: menu
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 10
+
+            property real button_width: save_as_button.width
 
             // Save dialog
             FileDialog {
@@ -266,13 +313,33 @@ ApplicationWindow {
                 }
             }
 
+            // Tree viewer window
+            TreeWindow {
+                id: tree_window
+            }
+
             // Save button
             Button {
                 id: save_button
-                width: verify_button.width
+                width: save_as_button.width
                 text: "Save"
                 onClicked: {
-                    if (is_saveable()) {
+                    if (is_savable()) {
+                        if (file_path != "") {
+                            save(file_path);
+                        } else {
+                            save_dialog.open();
+                        }
+                    }
+                }
+            }
+
+            // Save as button
+            Button {
+                id: save_as_button
+                text: "Save as"
+                onClicked: {
+                    if (is_savable()) {
                         save_dialog.open();
                     }
                 }
@@ -281,7 +348,7 @@ ApplicationWindow {
             // Load button
             Button {
                 id: load_button
-                width:verify_button.width
+                width: parent.button_width
                 text: "Load"
                 onClicked: {
                     load_dialog.open();
@@ -291,12 +358,50 @@ ApplicationWindow {
             // Verify button
             Button {
                 id: verify_button
+                width: parent.button_width
                 text: "Verify"
                 onClicked: {
-                    verify();
+                    if (is_savable()) {
+                        verify();
+                        tree_button.visible = true;
+                    }
                 }
             }
-            
+
+            // Tree viewer button
+            Button {
+                id: tree_button
+                width: parent.button_width
+                visible: false
+                text: "Tree"
+                onClicked: {
+                    tree_window.level = 1;
+                    tree_window.node_list.model = [];
+                    tree_window.node_list.model = node_model;
+                    tree_window.show();
+                }
+            }
+
+            // Dark/Light mode button
+            Button {
+                
+                width: parent.button_width
+                height: save_as_button.height
+                icon.source: "icons/dark_mode.png"
+                icon.height: height
+                icon.color: Material.foreground
+                onClicked: {
+                    if (Material.theme == Material.Dark) {
+                        window.Material.theme = Material.Light;
+                        icon.source = "icons/light_mode.png";
+                    } else {
+                        window.Material.theme = Material.Dark;
+                        icon.source = "icons/dark_mode.png";
+                    }
+                }
+
+            }
+
         }
 
     }

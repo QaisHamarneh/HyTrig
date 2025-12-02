@@ -1,0 +1,366 @@
+{
+    "Game": {
+        "name":"Bouncing Ball Game",
+        "locations": 
+        [
+
+            {
+                "name": "initial",
+                "invariant": "",
+                "flow": [
+                ],
+                "initial": true
+            },
+            {
+                "name": "A_Throwing",
+                "invariant": "-5 <= x && x <= 5 && -5 <= y && y <= 5",
+                "flow": [
+                    {"x": "dir_x"},
+                    {"y": "dir_y"}
+                ],
+                "initial": false
+            },
+            {
+                "name": "B_Throwing",
+                "invariant": "-5 <= x && x <= 5 && -5 <= y && y <= 5",
+                "flow": [
+                    {"x": "dir_x"},
+                    {"y": "dir_y"}
+                ],
+                "initial": false
+            },
+            {
+                "name": "C_Throwing",
+                "invariant": "-5 <= x && x <= 5 && -5 <= y && y <= 5",
+                "flow": [
+                    {"x": "dir_x"},
+                    {"y": "dir_y"}
+                ],
+                "initial": false
+            },
+            {
+                "name": "D_Throwing",
+                "invariant": "-5 <= x && x <= 5 && -5 <= y && y <= 5",
+                "flow": [
+                    {"x": "dir_x"},
+                    {"y": "dir_y"}
+                ],
+                "initial": false
+            }
+        ],
+        "positions":"A(-5,-5);B(5,-5);C(5,5);D(-5,5)",
+        "initial_valuation": [
+            {"x": -5},
+            {"y": -5},
+            {"dir_x": 0},
+            {"dir_y": 0},
+            {"shooter": 0}
+        ],
+        "agents": ["A", "B", "C", "D"],
+        "actions": ["R", "L"],
+        "edges": 
+        [
+            {
+                "name": "init_A_B",
+                "start_location": "initial",
+                "target_location": "A_Throwing",
+                "guard": "(x + 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "A": "R"
+                },
+                "jump": [ 
+                    {"dir_x": "1"},
+                    {"dir_y": "0"},
+                    {"shooter": "1"}
+                ]
+            },
+            {
+                "name": "init_A_D",
+                "start_location": "initial",
+                "target_location": "A_Throwing",
+                "guard": "(x + 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "A": "L"
+                },
+                "jump": [ 
+                    {"dir_x": "0"},
+                    {"dir_y": "1"},
+                    {"shooter": "1"}
+                ]
+            },
+            {
+                "name": "D_A_B",
+                "start_location": "D_Throwing",
+                "target_location": "A_Throwing",
+                "guard": "(x + 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "A": "R"
+                },
+                "jump": [ 
+                    {"dir_x": "1"},
+                    {"dir_y": "0"},
+                    {"shooter": "1"}
+                ]
+            },
+            {
+                "name": "D_A_D",
+                "start_location": "D_Throwing",
+                "target_location": "A_Throwing",
+                "guard": "(x + 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "A": "L"
+                },
+                "jump": [ 
+                    {"dir_x": "0"},
+                    {"dir_y": "1"},
+                    {"shooter": "1"}
+                ]
+            },
+            {
+                "name": "B_A_B",
+                "start_location": "B_Throwing",
+                "target_location": "A_Throwing",
+                "guard": "(x + 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "A": "R"
+                },
+                "jump": [ 
+                    {"dir_x": "1"},
+                    {"dir_y": "0"},
+                    {"shooter": "1"}
+                ]
+            },
+            {
+                "name": "B_A_D",
+                "start_location": "B_Throwing",
+                "target_location": "A_Throwing",
+                "guard": "(x + 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "A": "L"
+                },
+                "jump": [ 
+                    {"dir_x": "0"},
+                    {"dir_y": "1"},
+                    {"shooter": "1"}
+                ]
+            },
+
+
+
+            {
+                "name": "A_B_C",
+                "start_location": "A_Throwing",
+                "target_location": "B_Throwing",
+                "guard": "(x - 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "B": "R"
+                },
+                "jump": [ 
+                    {"dir_x": "0"},
+                    {"dir_y": "1"},
+                    {"shooter": "2"}
+                ]
+            },
+            {
+                "name": "A_B_A",
+                "start_location": "A_Throwing",
+                "target_location": "B_Throwing",
+                "guard": "(x - 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "B": "L"
+                },
+                "jump": [ 
+                    {"dir_x": "-1"},
+                    {"dir_y": "0"},
+                    {"shooter": "2"}
+                ]
+            },
+            {
+                "name": "C_B_C",
+                "start_location": "C_Throwing",
+                "target_location": "B_Throwing",
+                "guard": "(x - 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "B": "R"
+                },
+                "jump": [ 
+                    {"dir_x": "0"},
+                    {"dir_y": "1"},
+                    {"shooter": "2"}
+                ]
+            },
+            {
+                "name": "C_B_A",
+                "start_location": "C_Throwing",
+                "target_location": "B_Throwing",
+                "guard": "(x - 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "B": "L"
+                },
+                "jump": [ 
+                    {"dir_x": "-1"},
+                    {"dir_y": "0"},
+                    {"shooter": "2"}
+                ]
+            },
+
+
+
+            {
+                "name": "B_C_D",
+                "start_location": "B_Throwing",
+                "target_location": "C_Throwing",
+                "guard": "(x - 5)^2 + (y - 5)^2 <= 1",
+                "decision": 
+                {
+                    "C": "R"
+                },
+                "jump": [ 
+                    {"dir_x": "-1"},
+                    {"dir_y": "0"},
+                    {"shooter": "3"}
+                ]
+            },
+            {
+                "name": "B_C_B",
+                "start_location": "B_Throwing",
+                "target_location": "C_Throwing",
+                "guard": "(x - 5)^2 + (y - 5)^2 <= 1",
+                "decision": 
+                {
+                    "C": "L"
+                },
+                "jump": [ 
+                    {"dir_x": "0"},
+                    {"dir_y": "-1"},
+                    {"shooter": "3"}
+                ]
+            },
+            {
+                "name": "D_C_D",
+                "start_location": "D_Throwing",
+                "target_location": "C_Throwing",
+                "guard": "(x - 5)^2 + (y - 5)^2 <= 1",
+                "decision": 
+                {
+                    "C": "R"
+                },
+                "jump": [ 
+                    {"dir_x": "-1"},
+                    {"dir_y": "0"},
+                    {"shooter": "3"}
+                ]
+            },
+            {
+                "name": "D_C_B",
+                "start_location": "D_Throwing",
+                "target_location": "C_Throwing",
+                "guard": "(x - 5)^2 + (y - 5)^2 <= 1",
+                "decision": 
+                {
+                    "C": "L"
+                },
+                "jump": [ 
+                    {"dir_x": "0"},
+                    {"dir_y": "-1"},
+                    {"shooter": "3"}
+                ]
+            },
+
+
+
+            {
+                "name": "C_D_A",
+                "start_location": "C_Throwing",
+                "target_location": "D_Throwing",
+                "guard": "(x + 5)^2 + (y - 5)^2 <= 1",
+                "decision": 
+                {
+                    "D": "R"
+                },
+                "jump": [ 
+                    {"dir_x": "0"},
+                    {"dir_y": "-1"},
+                    {"shooter": "4"}
+                ]
+            },
+            {
+                "name": "C_D_C",
+                "start_location": "C_Throwing",
+                "target_location": "D_Throwing",
+                "guard": "(x + 5)^2 + (y - 5)^2 <= 1",
+                "decision": 
+                {
+                    "D": "L"
+                },
+                "jump": [ 
+                    {"dir_x": "1"},
+                    {"dir_y": "0"},
+                    {"shooter": "4"}
+                ]
+            },
+            {
+                "name": "A_D_A",
+                "start_location": "A_Throwing",
+                "target_location": "D_Throwing",
+                "guard": "(x + 5)^2 + (y - 5)^2 <= 1",
+                "decision": 
+                {
+                    "D": "R"
+                },
+                "jump": [ 
+                    {"dir_x": "0"},
+                    {"dir_y": "-1"},
+                    {"shooter": "4"}
+                ]
+            },
+            {
+                "name": "A_D_C",
+                "start_location": "A_Throwing",
+                "target_location": "D_Throwing",
+                "guard": "(x + 5)^2 + (y - 5)^2 <= 1",
+                "decision": 
+                {
+                    "D": "L"
+                },
+                "jump": [ 
+                    {"dir_x": "1"},
+                    {"dir_y": "0"},
+                    {"shooter": "4"}
+                ]
+            }
+        ],
+        "triggers": 
+        {
+            "A": ["x == -5 && y == -5 && shooter != 1"],
+            "B": ["x == 5  && y == -5 && shooter != 2"],
+            "C": ["x == 5  && y == 5  && shooter != 3"],
+            "D": ["x == -5 && y == 5  && shooter != 4"]
+        }
+
+    },
+    "termination-conditions": {
+        "time-bound": 300.0,
+        "max-steps": 10,
+        "state-formula": "false"
+    },
+    "queries": 
+    [
+        "[[A]] G y >= -5",
+        "[[B]] G y >= -5",
+        "[[C]] G y >= -5",
+        "[[D]] G y >= -5",
+        "[[]] G y >= -5",
+        "[[A,B,C,D]] G y >= -5"
+    ]
+}

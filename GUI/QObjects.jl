@@ -14,11 +14,14 @@ This file contains all QML object definitions needed to create QML models for th
 - `QJump`: a jump used in QML models
 - `QEdge`: a edge used in QML models
 - `QQuery`: a query used in QML models
+- `QActiveNode`: an active node in the game tree in QML
+- `PassiveNode`: a passive node in the game tree in QML
 
 # Authors:
 - Moritz Maas
 """
 
+include("../model_checking/node.jl")
 
 # abstract types for all objects used in QML models
 abstract type QObject
@@ -247,4 +250,85 @@ mutable struct QQuery <: QObject
     name::String
     verified::Bool
     result::Bool
+end
+
+"""
+    QActiveNode <: QObject
+
+An active tree node used in QML models.
+"""
+mutable struct QActiveNode <: QObject
+    location::String
+    agent::String
+    action::String
+    trigger::String
+    time::Float64
+    valuation::String
+    passive_nodes::JuliaItemModel
+end
+
+"""
+    QActiveNode(node::GUINode)::QActiveNode
+
+Create a QAction from the given GUI node `node`.
+# Arguments
+- `node::GUINode`: the gui node
+"""
+function QActiveNode(node::GUINode)::QActiveNode
+    QActiveNode(
+        string(node.config.location.name),
+        if isnothing(node.reaching_decision)
+            ""
+        else
+            string(node.reaching_decision[1])
+        end,
+        if isnothing(node.reaching_decision)
+            ""
+        else
+            string(node.reaching_decision[2])
+        end,
+        if isnothing(node.reaching_trigger)
+            ""
+        else
+            str(node.reaching_trigger)
+        end,
+        trunc(node.config.global_clock, digits=5),
+        _get_valuation_string(node.config.valuation),
+        JuliaItemModel([QPassiveNode(passive) for passive in node.passive_nodes])
+    )
+end
+
+"""
+    QPassiveNode <: QObject
+
+A passive tree node used in QML models.
+"""
+mutable struct QPassiveNode <: QObject
+    valuation::String
+    time::Float64
+end
+
+"""
+    QPassiveNode(node::PassiveNode)::QPassiveNode
+
+Create a QPassiveNode from the given passive node `node`.
+# Arguments
+- `node::PassiveNode`: the passive node
+"""
+function QPassiveNode(node::PassiveNode)::QPassiveNode
+    return QPassiveNode(
+        _get_valuation_string(node.config.valuation),
+        trunc(node.config.global_clock, digits=5)
+    )
+end
+
+function _get_valuation_string(valuation::Valuation)::String
+    str = ""
+    for (i, val) in enumerate(keys(valuation))
+        str *= "$(string(val)) = $(trunc(valuation[val], digits=5))"
+        if i != length(keys(valuation))
+            str *= ",\n"
+        end
+    end
+    return "{$str}"
 end

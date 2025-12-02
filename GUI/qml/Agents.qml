@@ -8,6 +8,7 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for agents
@@ -29,27 +30,25 @@ Column {
             if (!Julia.has_name(agent))
             {
                 agent_model.appendRow({name: agent, triggers: []});
-                agent_text_field.placeholderText = "Enter name";
-                agent_text_field.background.border.color = "black";
-                triggers.visible = agent_model.rowCount() > 0;
-                trigger_spacer.visible = agent_model.rowCount() > 0;
+                agent_text_field.text = "";
+                agent_text_field.placeholderText = agent_text_field.default_text;
+                agent_text_field.placeholderTextColor = agent_text_field.default_color;
+                return;
             }
             else {
-                agent_text_field.placeholderText = "Name in use";
-                agent_text_field.background.border.color = "red";
+                agent_text_field.placeholderText = "Name is already used";
             }
         }
         else {
-            agent_text_field.placeholderText = "Invalid name";
-            agent_text_field.background.border.color = "red";
+            agent_text_field.placeholderText = "Invalid agent name";
         }
-        agent_text_field.text = "";
+        agent_text_field.placeholderTextColor = agent_text_field.error_color;
     }
 
-    Text {
+    TitleText {
+        id: agent_text
         width: parent.width
         text: "Agents"
-        color: "white"
     }
 
     // List of agents
@@ -57,7 +56,7 @@ Column {
 
         id: agent_list
         width: parent.width
-        height: Math.min(contentHeight, 100)
+        height: parent.height - 2 * parent.spacing - agent_text.height - agent_input_row.height
         clip: true
 
         model: agent_model
@@ -66,22 +65,15 @@ Column {
             width: agent_list.width
             spacing: 10
 
-            Text {
-
+            DataText {
                 width: parent.width - parent.spacing - agent_button.width
                 text: model.name
-                color: "white"
-
             }
 
             // Remove agent button
-            Button {
-                text: "-"
-                height: parent.height
+            RemoveButton {
                 onClicked: {
                     agent_model.removeRow(index);
-                    triggers.visible = agent_model.rowCount() > 0;
-                    trigger_spacer.visible = agent_model.rowCount() > 0;
                 }
             }
 
@@ -89,7 +81,7 @@ Column {
 
         ScrollBar.vertical: ScrollBar {
             active: true
-            policy: ScrollBar.AsNeeded
+            policy: ScrollBar.AlwaysOn
         }
 
     }
@@ -97,34 +89,24 @@ Column {
     // Add agent row
     Row {
 
+        id: agent_input_row
         width: parent.width
         spacing: 10
 
         // Agent name input field
-        TextField {
+        InputField {
             id: agent_text_field
             width: parent.width - parent.spacing - agent_button.width
-            placeholderText: "Enter name"
-
-            background: Rectangle {
-                color: "black"
-                border.width: 1
-            }
+            default_text: "Enter agent name"
 
             onAccepted: {
                 agents.add_agent(agent_text_field.text);
             }
-            onActiveFocusChanged: {
-                placeholderText = "Enter name";
-                background.border.color = "black";
-            }
         }
 
         // Add agent button
-        Button {
+        AddButton {
             id: agent_button
-            Layout.fillHeight: false
-            text: "+"
             onClicked: {
                 agents.add_agent(agent_text_field.text);
             }

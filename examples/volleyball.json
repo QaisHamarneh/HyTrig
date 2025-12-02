@@ -1,0 +1,765 @@
+{
+    "Game": {
+        "name":"Valleyball Game",
+        "locations": 
+        [
+            {
+                "name": "initial",
+                "invariant": "",
+                "flow": [
+                ],
+                "initial": true
+            },
+            {
+                "name": "Team_1_Throwing",
+                "invariant": "0 <= z && z <= max_height && 0 <= x && x <= 18 && 0 <= y && y <= 9 && team == 1",
+                "flow": [
+                    {"x": "spd_x"},
+                    {"y": "spd_y"},
+                    {"z": "spd_z"},
+                    {"spd_z": "-g"},
+                    {"C_x": "spd_C * dir_C_x"},
+                    {"C_y": "spd_C * dir_C_y"},
+                    {"D_x": "spd_D * dir_D_x"},
+                    {"D_y": "spd_D * dir_D_y"}
+                ],
+                "initial": false
+            },
+            {
+                "name": "Team_2_Throwing",
+                "invariant": "0 <= z && z <= max_height && 0 <= x && x <= 18 && 0 <= y && y <= 9 && team == 2",
+                "flow": [
+                    {"x": "spd_x"},
+                    {"y": "spd_y"},
+                    {"z": "spd_z"},
+                    {"spd_z": "-g"},
+                    {"A_x": "spd_A * dir_A_x"},
+                    {"A_y": "spd_A * dir_A_y"},
+                    {"B_x": "spd_B * dir_B_x"},
+                    {"B_y": "spd_B * dir_B_y"}
+                ],
+                "initial": false
+            }
+        ],
+        "initial_valuation": [
+            {"x": 7},
+            {"y": 2},
+            {"z": 2},
+            {"spd_x": 0},
+            {"spd_y": 0},
+            {"spd_z": 0},
+            {"target_x": 13},
+            {"target_y": 4.5},
+            {"A_x": 7},
+            {"A_y": 2},
+            {"B_x": 7},
+            {"B_y": 7},
+            {"C_x": 16},
+            {"C_y": 2},
+            {"D_x": 16},
+            {"D_y": 7},
+            {"dir_A_x": 0},
+            {"dir_A_y": 0},
+            {"dir_B_x": 0},
+            {"dir_B_y": 0},
+            {"dir_C_x": 0},
+            {"dir_C_y": 0},
+            {"dir_D_x": 0},
+            {"dir_D_y": 0},
+            {"spd_A": 3.5},
+            {"spd_B": 3},
+            {"spd_C": 4},
+            {"spd_D": 3.5},
+            {"team": 0},
+            {"max_height": 4},
+            {"g": 9.8},
+            {"p1_1_x": 1},
+            {"p1_1_y": 4.5},
+            {"p2_1_x": 4},
+            {"p2_1_y": 1},
+            {"p3_1_x": 4},
+            {"p3_1_y": 8},
+            {"p4_1_x": 8},
+            {"p4_1_y": 3},
+            {"p5_1_x": 8},
+            {"p5_1_y": 6},
+            {"p1_2_x": 12},
+            {"p1_2_y": 2},
+            {"p2_2_x": 12},
+            {"p2_2_y": 7},
+            {"p3_2_x": 13},
+            {"p3_2_y": 4.5},
+            {"p4_2_x": 16},
+            {"p4_2_y": 1},
+            {"p5_2_x": 16},
+            {"p5_2_y": 8}
+        ],
+        "agents": ["A", "B", "C", "D"],
+        "actions": ["p1", "p2", "p3", "p4", "p5", "move", "stop"],
+        "edges": 
+        [
+            {
+                "name": "init_A_p1",
+                "start_location": "initial",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p1"
+                },
+                "jump": [ 
+                    {"target_x": "p1_2_x"},
+                    {"target_y": "p1_2_y"},
+                    {"spd_x": "(p1_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p1_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "init_A_p2",
+                "start_location": "initial",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p2"
+                },
+                "jump": [ 
+                    {"target_x": "p2_2_x"},
+                    {"target_y": "p2_2_y"},
+                    {"spd_x": "(p2_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p2_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "init_A_p3",
+                "start_location": "initial",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p3"
+                },
+                "jump": [ 
+                    {"target_x": "p3_2_x"},
+                    {"target_y": "p3_2_y"},
+                    {"spd_x": "(p3_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p3_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "init_A_p4",
+                "start_location": "initial",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p4"
+                },
+                "jump": [ 
+                    {"target_x": "p4_2_x"},
+                    {"target_y": "p4_2_y"},
+                    {"spd_x": "(p4_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p4_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "init_A_p5",
+                "start_location": "initial",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p5"
+                },
+                "jump": [ 
+                    {"target_x": "p5_2_x"},
+                    {"target_y": "p5_2_y"},
+                    {"spd_x": "(p5_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p5_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "A_p1",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p1"
+                },
+                "jump": [ 
+                    {"target_x": "p1_2_x"},
+                    {"target_y": "p1_2_y"},
+                    {"spd_x": "(p1_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p1_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_A_x": "0"},
+                    {"dir_A_y": "0"},
+                    {"dir_B_x": "0"},
+                    {"dir_B_y": "0"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "A_p2",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p2"
+                },
+                "jump": [ 
+                    {"target_x": "p2_2_x"},
+                    {"target_y": "p2_2_y"},
+                    {"spd_x": "(p2_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p2_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_A_x": "0"},
+                    {"dir_A_y": "0"},
+                    {"dir_B_x": "0"},
+                    {"dir_B_y": "0"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "A_p3",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p3"
+                },
+                "jump": [ 
+                    {"target_x": "p3_2_x"},
+                    {"target_y": "p3_2_y"},
+                    {"spd_x": "(p3_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p3_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_A_x": "0"},
+                    {"dir_A_y": "0"},
+                    {"dir_B_x": "0"},
+                    {"dir_B_y": "0"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "A_p4",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p4"
+                },
+                "jump": [ 
+                    {"target_x": "p4_2_x"},
+                    {"target_y": "p4_2_y"},
+                    {"spd_x": "(p4_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p4_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_A_x": "0"},
+                    {"dir_A_y": "0"},
+                    {"dir_B_x": "0"},
+                    {"dir_B_y": "0"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "A_p5",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - A_x)^2 + (y - A_y)^2 <= 1",
+                "decision": 
+                {
+                    "A": "p5"
+                },
+                "jump": [ 
+                    {"target_x": "p5_2_x"},
+                    {"target_y": "p5_2_y"},
+                    {"spd_x": "(p5_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p5_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_A_x": "0"},
+                    {"dir_A_y": "0"},
+                    {"dir_B_x": "0"},
+                    {"dir_B_y": "0"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "B_p1",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - B_x)^2 + (y - B_y)^2 <= 1",
+                "decision": 
+                {
+                    "B": "p1"
+                },
+                "jump": [ 
+                    {"target_x": "p1_2_x"},
+                    {"target_y": "p1_2_y"},
+                    {"spd_x": "(p1_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p1_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_A_x": "0"},
+                    {"dir_A_y": "0"},
+                    {"dir_B_x": "0"},
+                    {"dir_B_y": "0"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "B_p2",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - B_x)^2 + (y - B_y)^2 <= 1",
+                "decision": 
+                {
+                    "B": "p2"
+                },
+                "jump": [ 
+                    {"target_x": "p2_2_x"},
+                    {"target_y": "p2_2_y"},
+                    {"spd_x": "(p2_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p2_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_A_x": "0"},
+                    {"dir_A_y": "0"},
+                    {"dir_B_x": "0"},
+                    {"dir_B_y": "0"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "B_p3",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - B_x)^2 + (y - B_y)^2 <= 1",
+                "decision": 
+                {
+                    "B": "p3"
+                },
+                "jump": [ 
+                    {"target_x": "p3_2_x"},
+                    {"target_y": "p3_2_y"},
+                    {"spd_x": "(p3_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p3_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_A_x": "0"},
+                    {"dir_A_y": "0"},
+                    {"dir_B_x": "0"},
+                    {"dir_B_y": "0"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "B_p4",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - B_x)^2 + (y - B_y)^2 <= 1",
+                "decision": 
+                {
+                    "B": "p4"
+                },
+                "jump": [ 
+                    {"target_x": "p4_2_x"},
+                    {"target_y": "p4_2_y"},
+                    {"spd_x": "(p4_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p4_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_A_x": "0"},
+                    {"dir_A_y": "0"},
+                    {"dir_B_x": "0"},
+                    {"dir_B_y": "0"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "B_p5",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "(x - B_x)^2 + (y - B_y)^2 <= 1",
+                "decision": 
+                {
+                    "B": "p5"
+                },
+                "jump": [ 
+                    {"target_x": "p5_2_x"},
+                    {"target_y": "p5_2_y"},
+                    {"spd_x": "(p5_2_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p5_2_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_A_x": "0"},
+                    {"dir_A_y": "0"},
+                    {"dir_B_x": "0"},
+                    {"dir_B_y": "0"},
+                    {"team": "1"}
+                ]
+            },
+            {
+                "name": "C_p1",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "(x - C_x)^2 + (y - C_y)^2 <= 1",
+                "decision": 
+                {
+                    "C": "p1"
+                },
+                "jump": [ 
+                    {"target_x": "p1_1_x"},
+                    {"target_y": "p1_1_y"},
+                    {"spd_x": "(p1_1_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p1_1_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_C_x": "0"},
+                    {"dir_C_y": "0"},
+                    {"dir_D_x": "0"},
+                    {"dir_D_y": "0"},
+                    {"team": "2"}
+                ]
+            },
+            {
+                "name": "C_p2",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "(x - C_x)^2 + (y - C_y)^2 <= 1",
+                "decision": 
+                {
+                    "C": "p2"
+                },
+                "jump": [ 
+                    {"target_x": "p2_1_x"},
+                    {"target_y": "p2_1_y"},
+                    {"spd_x": "(p2_1_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p2_1_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_C_x": "0"},
+                    {"dir_C_y": "0"},
+                    {"dir_D_x": "0"},
+                    {"dir_D_y": "0"},
+                    {"team": "2"}
+                ]
+            },
+            {
+                "name": "C_p3",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "(x - C_x)^2 + (y - C_y)^2 <= 1",
+                "decision": 
+                {
+                    "C": "p3"
+                },
+                "jump": [ 
+                    {"target_x": "p3_1_x"},
+                    {"target_y": "p3_1_y"},
+                    {"spd_x": "(p3_1_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p3_1_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_C_x": "0"},
+                    {"dir_C_y": "0"},
+                    {"dir_D_x": "0"},
+                    {"dir_D_y": "0"},
+                    {"team": "2"}
+                ]
+            },
+            {
+                "name": "C_p4",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "(x - C_x)^2 + (y - C_y)^2 <= 1",
+                "decision": 
+                {
+                    "C": "p4"
+                },
+                "jump": [ 
+                    {"target_x": "p4_1_x"},
+                    {"target_y": "p4_1_y"},
+                    {"spd_x": "(p4_1_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p4_1_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_C_x": "0"},
+                    {"dir_C_y": "0"},
+                    {"dir_D_x": "0"},
+                    {"dir_D_y": "0"},
+                    {"team": "2"}
+                ]
+            },
+            {
+                "name": "C_p5",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "(x - C_x)^2 + (y - C_y)^2 <= 1",
+                "decision": 
+                {
+                    "C": "p5"
+                },
+                "jump": [ 
+                    {"target_x": "p5_1_x"},
+                    {"target_y": "p5_1_y"},
+                    {"spd_x": "(p5_1_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p5_1_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_C_x": "0"},
+                    {"dir_C_y": "0"},
+                    {"dir_D_x": "0"},
+                    {"dir_D_y": "0"},
+                    {"team": "2"}
+                ]
+            },
+            {
+                "name": "D_p1",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "(x - D_x)^2 + (y - D_y)^2 <= 1",
+                "decision": 
+                {
+                    "D": "p1"
+                },
+                "jump": [ 
+                    {"target_x": "p1_1_x"},
+                    {"target_y": "p1_1_y"},
+                    {"spd_x": "(p1_1_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p1_1_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_C_x": "0"},
+                    {"dir_C_y": "0"},
+                    {"dir_D_x": "0"},
+                    {"dir_D_y": "0"},
+                    {"team": "2"}
+                ]
+            },
+            {
+                "name": "D_p2",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "(x - D_x)^2 + (y - D_y)^2 <= 1",
+                "decision": 
+                {
+                    "D": "p2"
+                },
+                "jump": [ 
+                    {"target_x": "p2_1_x"},
+                    {"target_y": "p2_1_y"},
+                    {"spd_x": "(p2_1_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p2_1_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_C_x": "0"},
+                    {"dir_C_y": "0"},
+                    {"dir_D_x": "0"},
+                    {"dir_D_y": "0"},
+                    {"team": "2"}
+                ]
+            },
+            {
+                "name": "D_p3",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "(x - D_x)^2 + (y - D_y)^2 <= 1",
+                "decision": 
+                {
+                    "D": "p3"
+                },
+                "jump": [ 
+                    {"target_x": "p3_1_x"},
+                    {"target_y": "p3_1_y"},
+                    {"spd_x": "(p3_1_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p3_1_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_C_x": "0"},
+                    {"dir_C_y": "0"},
+                    {"dir_D_x": "0"},
+                    {"dir_D_y": "0"},
+                    {"team": "2"}
+                ]
+            },
+            {
+                "name": "D_p4",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "(x - D_x)^2 + (y - D_y)^2 <= 1",
+                "decision": 
+                {
+                    "D": "p4"
+                },
+                "jump": [ 
+                    {"target_x": "p4_1_x"},
+                    {"target_y": "p4_1_y"},
+                    {"spd_x": "(p4_1_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p4_1_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_C_x": "0"},
+                    {"dir_C_y": "0"},
+                    {"dir_D_x": "0"},
+                    {"dir_D_y": "0"},
+                    {"team": "2"}
+                ]
+            },
+            {
+                "name": "D_p5",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "(x - D_x)^2 + (y - D_y)^2 <= 1",
+                "decision": 
+                {
+                    "D": "p5"
+                },
+                "jump": [ 
+                    {"target_x": "p5_1_x"},
+                    {"target_y": "p5_1_y"},
+                    {"spd_x": "(p5_1_x - x)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_y": "(p5_1_y - y)  /  (((2 * g * (max_height - z))^0.5 + ( (2 * g * (max_height - z)) + 2 * g * z)^0.5) / g)"},
+                    {"spd_z": "(2 * g * (max_height - z))^0.5"},
+                    {"dir_C_x": "0"},
+                    {"dir_C_y": "0"},
+                    {"dir_D_x": "0"},
+                    {"dir_D_y": "0"},
+                    {"team": "2"}
+                ]
+            },
+            {
+                "name": "A_move",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "team == 2 && x == 9",
+                "decision": 
+                {
+                    "A": "move"
+                },
+                "jump": [ 
+                    {"dir_A_x": "(target_x - A_x) / ((target_x - A_x)^2 + (target_y - A_y)^2)^0.5"},
+                    {"dir_A_y": "(target_y - A_y) / ((target_x - A_x)^2 + (target_y - A_y)^2)^0.5"}
+                ]
+            },
+            {
+                "name": "B_move",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "team == 2 && x == 9",
+                "decision": 
+                {
+                    "B": "move"
+                },
+                "jump": [ 
+                    {"dir_B_x": "(target_x - B_x) / ((target_x - B_x)^2 + (target_y - B_y)^2)^0.5"},
+                    {"dir_B_y": "(target_y - B_y) / ((target_x - B_x)^2 + (target_y - B_y)^2)^0.5"}
+                ]
+            },
+            {
+                "name": "C_move",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "team == 1 && x == 9",
+                "decision": 
+                {
+                    "C": "move"
+                },
+                "jump": [ 
+                    {"dir_C_x": "(target_x - C_x) / ((target_x - C_x)^2 + (target_y - C_y)^2)^0.5"},
+                    {"dir_C_y": "(target_y - C_y) / ((target_x - C_x)^2 + (target_y - C_y)^2)^0.5"}
+                ]
+            },
+            {
+                "name": "D_move",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "team == 1 && x == 9",
+                "decision": 
+                {
+                    "D": "move"
+                },
+                "jump": [ 
+                    {"dir_D_x": "(target_x - D_x) / ((target_x - D_x)^2 + (target_y - D_y)^2)^0.5"},
+                    {"dir_D_y": "(target_y - D_y) / ((target_x - D_x)^2 + (target_y - D_y)^2)^0.5"}
+                ]
+            },
+            {
+                "name": "A_stop",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "dir_A_x != 0 || dir_A_y != 0",
+                "decision": 
+                {
+                    "A": "stop"
+                },
+                "jump": [ 
+                    {"dir_A_x": "0"},
+                    {"dir_A_y": "0"}
+                ]
+            },
+            {
+                "name": "B_stop",
+                "start_location": "Team_2_Throwing",
+                "target_location": "Team_2_Throwing",
+                "guard": "dir_B_x != 0 || dir_B_y != 0",
+                "decision": 
+                {
+                    "B": "stop"
+                },
+                "jump": [ 
+                    {"dir_B_x": "0"},
+                    {"dir_B_y": "0"}
+                ]
+            },
+            {
+                "name": "C_stop",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "dir_C_x != 0 || dir_C_y != 0",
+                "decision": 
+                {
+                    "C": "stop"
+                },
+                "jump": [ 
+                    {"dir_C_x": "0"},
+                    {"dir_C_y": "0"}
+                ]
+            },
+            {
+                "name": "D_stop",
+                "start_location": "Team_1_Throwing",
+                "target_location": "Team_1_Throwing",
+                "guard": "dir_D_x != 0 || dir_D_y != 0",
+                "decision": 
+                {
+                    "D": "stop"
+                },
+                "jump": [ 
+                    {"dir_D_x": "0"},
+                    {"dir_D_y": "0"}
+                ]
+            }
+        ],
+        "triggers": 
+        {
+            "A": ["(x - A_x)^2 + (y - A_y)^2 <= 1", "(x - A_x)^2 + (y - A_y)^2 <= 0.5", "(x - A_x)^2 + (y - A_y)^2 <= 0.25", "team == 2 && x == 9", 
+                  "(p1_1_x - A_x)^2 + (p1_1_y - A_y)^2 <= 0.1 || (p2_1_x - A_x)^2 + (p2_1_y - A_y)^2 <= 0.1 || (p3_1_x - A_x)^2 + (p3_1_y - A_y)^2 <= 0.1 || (p4_1_x - A_x)^2 + (p4_1_y - A_y)^2 <= 0.1 || (p5_1_x - A_x)^2 + (p5_1_y - A_y)^2 <= 0.1"],
+            "B": ["(x - B_x)^2 + (y - B_y)^2 <= 1", "(x - B_x)^2 + (y - B_y)^2 <= 0.5", "(x - B_x)^2 + (y - B_y)^2 <= 0.25", "team == 2 && x == 9", 
+                  "(p1_1_x - B_x)^2 + (p1_1_y - B_y)^2 <= 0.1 || (p2_1_x - B_x)^2 + (p2_1_y - B_y)^2 <= 0.1 || (p3_1_x - B_x)^2 + (p3_1_y - B_y)^2 <= 0.1 || (p4_1_x - B_x)^2 + (p4_1_y - B_y)^2 <= 0.1 || (p5_1_x - B_x)^2 + (p5_1_y - B_y)^2 <= 0.1"],
+            "C": ["(x - C_x)^2 + (y - C_y)^2 <= 1", "(x - C_x)^2 + (y - C_y)^2 <= 0.5", "(x - C_x)^2 + (y - C_y)^2 <= 0.25", "team == 1 && x == 9", 
+                  "(p1_2_x - C_x)^2 + (p1_2_y - C_y)^2 <= 0.1 || (p2_2_x - C_x)^2 + (p2_2_y - C_y)^2 <= 0.1 || (p3_2_x - C_x)^2 + (p3_2_y - C_y)^2 <= 0.1 || (p4_2_x - C_x)^2 + (p4_2_y - C_y)^2 <= 0.1 || (p5_2_x - C_x)^2 + (p5_2_y - C_y)^2 <= 0.1"],
+            "D": ["(x - D_x)^2 + (y - D_y)^2 <= 1", "(x - D_x)^2 + (y - D_y)^2 <= 0.5", "(x - D_x)^2 + (y - D_y)^2 <= 0.25", "team == 1 && x == 9", 
+                  "(p1_2_x - D_x)^2 + (p1_2_y - D_y)^2 <= 0.1 || (p2_2_x - D_x)^2 + (p2_2_y - D_y)^2 <= 0.1 || (p3_2_x - D_x)^2 + (p3_2_y - D_y)^2 <= 0.1 || (p4_2_x - D_x)^2 + (p4_2_y - D_y)^2 <= 0.1 || (p5_2_x - D_x)^2 + (p5_2_y - D_y)^2 <= 0.1"]
+        }
+    },
+    "termination-conditions": {
+        "time-bound": 300,
+        "max-steps": 15,
+        "state-formula": "z <= 0 || x <= 0 || x >= 18 || y <= 0 || y >= 9"
+    },
+    "queries": 
+    [
+        "<<C, D>> F x < 9 && z <= 0"
+    ]
+}

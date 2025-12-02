@@ -14,7 +14,7 @@ This file contains all token definitions needed to convert a string into an arra
 - `CustomToken`: abstract type for all custom names
 - `NumericToken`: token for all numeric values
 - `BooleanToken`: token for all boolean values
-- `StateConstantToken`: token for deadlocks
+- `StrategyConstantToken`: token for deadlocks
 - `QuantifierToken`: token for quantifier keywords
 - `StrategyUnaryOperatorToken`: token for unary operations on strategies
 - `StrategyBinaryOperatorToken`: token for binary operations on strategies
@@ -23,8 +23,10 @@ This file contains all token definitions needed to convert a string into an arra
 - `ConstraintUnaryOperatorToken`: token for unary operations on constraints
 - `ConstraintBinaryOperatorToken`: token for binary operations on constraints
 - `ConstraintCompareToken`: token for comparison operators
-- `ExpressionUnaryOperatorToken`: token for unary operations on expression
-- `ExpressionBinaryOperatorToken`: token for binary operations on expression
+- `ExpressionUnaryOperatorToken`: token for unary operations on expressions
+- `ExpressionBinaryOperatorToken`: token for binary operations on expressions
+- `ExpressionUnBinaryOperatorToken`: token for ambiguous unary and binary operators
+- `ExpressionBinaryFunctionToken`: token for binary functions on expressions
 
 The types are hierarchically ordered as follows:
     Token
@@ -36,13 +38,14 @@ The types are hierarchically ordered as follows:
     |-- NumericToken
     |-- KeywordToken
     |   |-- BooleanToken
-    |   |-- StateConstantToken
+    |   |-- StrategyConstantToken
     |   |-- QuantifierToken
     |-- OperatorToken
         |-- ...UnaryOperatorToken
         |-- ...BinaryOperatorToken
         |-- ConstraintCompareToken
         |-- ExpressionUnBinaryOperatorToken
+        |-- ExpressionBinaryFunctionToken
 
 # Authors:
 - Moritz Maas
@@ -153,15 +156,15 @@ struct BooleanToken <: KeywordToken
 end
 
 """
-    StateConstantToken <: KeywordToken
+    StrategyConstantToken <: KeywordToken
 
-A token for state constants like `deadlock`.
+A token for strategy constants like `deadlock`.
 
-    StateConstantToken(type::String)
+    StrategyConstantToken(type::String)
 
-Create a StateConstantToken of type `type`.
+Create a StrategyConstantToken of type `type`.
 """
-struct StateConstantToken <: KeywordToken
+struct StrategyConstantToken <: KeywordToken
     type::String
 end
 
@@ -305,6 +308,19 @@ A token for ambiguous unary and binary operators on expressions.
 Create a ExpressionUnBinaryOperatorToken of type `type`.
 """
 struct ExpressionUnBinaryOperatorToken <: OperatorToken
+    type::String
+end
+
+"""
+    ExpressionBinaryFunctionToken <: OperatorToken
+
+A token for binary functions on expressions.
+
+    ExpressionBinaryFunctionToken(type::String)
+
+Create a ExpressionBinaryFunctionToken of type `type`.
+"""
+struct ExpressionBinaryFunctionToken <: OperatorToken
     type::String
 end
 

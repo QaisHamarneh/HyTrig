@@ -94,9 +94,9 @@ function _parse_boolean_constraint(left_tokens::ParseVector, token::BooleanToken
     return ConstraintConstant(token.type == "true")
 end
 
-# state -> deadlock
-function _parse_deadlock_state(left_tokens::ParseVector, token::StateConstantToken, right_tokens::ParseVector)::StateConstant
-    return StateConstant(token.type)
+# strategy -> deadlock
+function _parse_deadlock_strategy(left_tokens::ParseVector, token::StrategyConstantToken, right_tokens::ParseVector)::StrategyConstant
+    return StrategyConstant(token.type)
 end
 
 pre_parse_grammar::Grammar = Dict([
@@ -110,8 +110,8 @@ pre_parse_grammar::Grammar = Dict([
     (NumericToken, [GrammarRule([], [], _parse_numeric_expression)]),
     # constr -> boolean
     (BooleanToken, [GrammarRule([], [], _parse_boolean_constraint)]),
-    # state -> deadlock
-    (StateConstantToken, [GrammarRule([], [], _parse_deadlock_state)])
+    # strategy -> deadlock
+    (StrategyConstantToken, [GrammarRule([], [], _parse_deadlock_strategy)])
 ])
 
 
@@ -126,6 +126,12 @@ end
 function _parse_binary_expression(left_tokens::ParseVector, token::OperatorToken, right_tokens::ParseVector)::ExpressionBinaryOperation
     _check_token_count(1, 1, left_tokens, right_tokens)
     return ExpressionBinaryOperation(token.type, left_tokens[1], right_tokens[1])
+end
+
+# expr_binary_func ( expr , expr )
+function _parse_binary_function(left_tokens::ParseVector, token::ExpressionBinaryFunctionToken, right_tokens::ParseVector)::ExpressionBinaryOperation
+    _check_token_count(0, 5, left_tokens, right_tokens)
+    return ExpressionBinaryOperation(token.type, right_tokens[2], right_tokens[4])
 end
 
 expression_grammar::Grammar = Dict([
@@ -144,7 +150,14 @@ expression_grammar::Grammar = Dict([
     # expr -> expr - expr
     (ExpressionUnBinaryOperatorToken, [GrammarRule([ExpressionNode], [ExpressionNode], _parse_binary_expression),
     # expr -> - expr
-                                       GrammarRule([], [ExpressionNode], _parse_unary_expression)])
+                                       GrammarRule([], [ExpressionNode], _parse_unary_expression)]),
+    # expr_binary_func ( expr , expr )
+    (ExpressionBinaryFunctionToken, [
+        GrammarRule(
+            [],
+            [SeparatorToken("("), ExpressionNode, SeparatorToken(","), ExpressionNode, SeparatorToken(")")],
+            _parse_binary_function
+        )])
 ])
 
 
@@ -167,20 +180,22 @@ function _parse_compare_constraint(left_tokens::ParseVector, token::ConstraintCo
     return ConstraintBinaryOperation(token.type, left_tokens[1], right_tokens[1])
 end
 
-const constraint_grammar::Grammar = Dict([
-    # constr -> ( constr )
-    (ConstraintConstant, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
-    # constr -> ( constr )
-    (ConstraintUnaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
-    # constr -> ( constr )
-    (ConstraintBinaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
-    # constr -> constr_unary_op constr
-    (ConstraintUnaryOperatorToken, [GrammarRule([], [ConstraintNode], _parse_unary_constraint)]),
-    # constr -> constr constr_binary_op constr
-    (ConstraintBinaryOperatorToken, [GrammarRule([ConstraintNode], [ConstraintNode], _parse_binary_constraint)]),
-    # constr -> expr constr_compare_op expr
-    (ConstraintCompareToken, [GrammarRule([ExpressionNode], [ExpressionNode], _parse_compare_constraint)])
-])
+if !isdefined(Main, :constraint_grammar)
+    const constraint_grammar::Grammar = Dict([
+        # constr -> ( constr )
+        (ConstraintConstant, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
+        # constr -> ( constr )
+        (ConstraintUnaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
+        # constr -> ( constr )
+        (ConstraintBinaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
+        # constr -> constr_unary_op constr
+        (ConstraintUnaryOperatorToken, [GrammarRule([], [ConstraintNode], _parse_unary_constraint)]),
+        # constr -> constr constr_binary_op constr
+        (ConstraintBinaryOperatorToken, [GrammarRule([ConstraintNode], [ConstraintNode], _parse_binary_constraint)]),
+        # constr -> expr constr_compare_op expr
+        (ConstraintCompareToken, [GrammarRule([ExpressionNode], [ExpressionNode], _parse_compare_constraint)])
+    ])
+end
 
 
 
@@ -196,19 +211,20 @@ function _parse_binary_state(left_tokens::ParseVector, token::ConstraintBinaryOp
     return StateBinaryOperation(token.type, left_tokens[1], right_tokens[1])
 end
 
-const state_grammar::Grammar = Dict([
-    # state -> ( state )
-    (LocationNode, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
-    # state -> ( state )
-    (StateUnaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
-    # state -> ( state )
-    (StateBinaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
-    # state -> state_unary_op state
-    (ConstraintUnaryOperatorToken, [GrammarRule([], [StateNode], _parse_unary_state)]),
-    # state -> state state_binary_op state
-    (ConstraintBinaryOperatorToken, [GrammarRule([StateNode], [StateNode], _parse_binary_state)])
-])
-
+if !isdefined(Main, :state_grammar)
+    const state_grammar::Grammar = Dict([
+        # state -> ( state )
+        (LocationNode, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
+        # state -> ( state )
+        (StateUnaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
+        # state -> ( state )
+        (StateBinaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
+        # state -> state_unary_op state
+        (ConstraintUnaryOperatorToken, [GrammarRule([], [StateNode], _parse_unary_state)]),
+        # state -> state state_binary_op state
+        (ConstraintBinaryOperatorToken, [GrammarRule([StateNode], [StateNode], _parse_binary_state)])
+    ])
+end
 
 
 # agent_list -> agent_list, agent_list
@@ -229,16 +245,19 @@ function _parse_empty_list(left_tokens::ParseVector, token::EmptyListToken, righ
     return Agents(token.type == "[[]]", AgentList([]))
 end
 
-const agent_grammar::Grammar = Dict([
-    # agent_list -> agent_list , agent_list
-    (AgentList, [GrammarRule([], [SeparatorToken(","), AgentList], _parse_agent_list),
-    # agents -> << agent_list >>
-                    GrammarRule([SeparatorToken("<<")], [SeparatorToken(">>")], _parse_agents),
-    # agents -> [[ agent_list ]]
-                    GrammarRule([SeparatorToken("[[")], [SeparatorToken("]]")], _parse_agents)]),
-    # agent_list -> << >> | [[ ]]
-    (EmptyListToken, [GrammarRule([], [], _parse_empty_list)])
-])
+
+if !isdefined(Main, :agent_grammar)
+    const agent_grammar::Grammar = Dict([
+        # agent_list -> agent_list , agent_list
+        (AgentList, [GrammarRule([], [SeparatorToken(","), AgentList], _parse_agent_list),
+        # agents -> << agent_list >>
+                        GrammarRule([SeparatorToken("<<")], [SeparatorToken(">>")], _parse_agents),
+        # agents -> [[ agent_list ]]
+                        GrammarRule([SeparatorToken("[[")], [SeparatorToken("]]")], _parse_agents)]),
+        # agent_list -> << >> | [[ ]]
+        (EmptyListToken, [GrammarRule([], [], _parse_empty_list)])
+    ])
+end
 
 
 
@@ -266,24 +285,26 @@ function _parse_binary_strategy(left_tokens::ParseVector, token::StrategyBinaryO
     return StrategyBinaryOperation(token.type, left_tokens[1], right_tokens[1])
 end
 
-const strategy_grammar::Grammar = Dict([
-    # strat -> ( strat )
-    (Quantifier, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
-    # strat -> ( strat )
-    (StrategyUnaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
-    # strat -> ( strat )
-    (StrategyBinaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
-    # strat -> agent_list F strat | agent_list G strat
-    (QuantifierToken, [GrammarRule([Agents], [StrategyNode], _parse_quantifier_strategy),
-    # strat -> << >> F strat | << >> G strat
-                       GrammarRule([SeparatorToken("<<"), SeparatorToken(">>")], [StrategyNode], _parse_empty_quantifier_strategy),
-    # strat -> [[ ]] F strat | [[ ]] G strat
-                       GrammarRule([SeparatorToken("[["), SeparatorToken("]]")], [StrategyNode], _parse_empty_quantifier_strategy)]),
-    # strat -> strat_unary_op strat
-    (StrategyUnaryOperatorToken, [GrammarRule([], [StrategyNode], _parse_unary_strategy)]),
-    # strat -> strat strat_binary_op strat
-    (StrategyBinaryOperatorToken, [GrammarRule([StrategyNode], [StrategyNode], _parse_binary_strategy)])
-])
+if !isdefined(Main, :strategy_grammar)
+    const strategy_grammar::Grammar = Dict([
+        # strat -> ( strat )
+        (Quantifier, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
+        # strat -> ( strat )
+        (StrategyUnaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
+        # strat -> ( strat )
+        (StrategyBinaryOperation, [GrammarRule([SeparatorToken("(")], [SeparatorToken(")")], _parse_bracket)]),
+        # strat -> agent_list F strat | agent_list G strat
+        (QuantifierToken, [GrammarRule([Agents], [StrategyNode], _parse_quantifier_strategy),
+        # strat -> << >> F strat | << >> G strat
+                        GrammarRule([SeparatorToken("<<"), SeparatorToken(">>")], [StrategyNode], _parse_empty_quantifier_strategy),
+        # strat -> [[ ]] F strat | [[ ]] G strat
+                        GrammarRule([SeparatorToken("[["), SeparatorToken("]]")], [StrategyNode], _parse_empty_quantifier_strategy)]),
+        # strat -> strat_unary_op strat
+        (StrategyUnaryOperatorToken, [GrammarRule([], [StrategyNode], _parse_unary_strategy)]),
+        # strat -> strat strat_binary_op strat
+        (StrategyBinaryOperatorToken, [GrammarRule([StrategyNode], [StrategyNode], _parse_binary_strategy)])
+    ])
+end
 
 
 
@@ -295,34 +316,42 @@ function _check_token_count(l::Int, r::Int, provided_l::ParseVector, provided_r:
 end
 
 
+if !isdefined(Main, :expression_operator_strength)
+    const expression_operator_strength::Dict{String, Int} = Dict([
+        ("^", 20),
+        ("%", 10),
+        ("*", 10),
+        ("/", 10),
+        ("+", 0),
+        ("-", 0)
+    ])
+end
 
-const expression_operator_strength::Dict{String, Int} = Dict([
-    ("^", 20),
-    ("*", 10),
-    ("/", 10),
-    ("+", 0),
-    ("-", 0)
-])
+if !isdefined(Main, :constraint_operator_strength)
+    const constraint_operator_strength::Dict{String, Int} = Dict([
+        ("&&", 20),
+        ("||", 10),
+        ("->", 0)
+    ])
+end
 
-const constraint_operator_strength::Dict{String, Int} = Dict([
-    ("&&", 20),
-    ("||", 10),
-    ("->", 0)
-])
+if !isdefined(Main, :strategy_operator_strength)
+    const strategy_operator_strength::Dict{String, Int} = Dict([
+        ("and", 20),
+        ("or", 10),
+        ("imply", 0)
+    ])
+end
 
-const strategy_operator_strength::Dict{String, Int} = Dict([
-    ("and", 20),
-    ("or", 10),
-    ("imply", 0)
-])
-
-const operator_type_to_strength::Dict{Type, Dict{String, Int}} = Dict([
-    (ExpressionUnBinaryOperatorToken, expression_operator_strength),
-    (ExpressionBinaryOperatorToken, expression_operator_strength),
-    (ConstraintBinaryOperatorToken, constraint_operator_strength),
-    (StateBinaryOperatorToken, constraint_operator_strength),
-    (StrategyBinaryOperatorToken, strategy_operator_strength)
-])
+if !isdefined(Main, :operator_type_to_strength)
+    const operator_type_to_strength::Dict{Type, Dict{String, Int}} = Dict([
+        (ExpressionUnBinaryOperatorToken, expression_operator_strength),
+        (ExpressionBinaryOperatorToken, expression_operator_strength),
+        (ConstraintBinaryOperatorToken, constraint_operator_strength),
+        (StateBinaryOperatorToken, constraint_operator_strength),
+        (StrategyBinaryOperatorToken, strategy_operator_strength)
+    ])
+end
 
 
 

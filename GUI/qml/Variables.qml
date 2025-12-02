@@ -8,6 +8,7 @@ import QtQml.Models
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Controls.Material
 import org.julialang
 
 // Outer container for variables
@@ -33,64 +34,59 @@ Column {
                 if (value_regex.test(value))
                 {
                     variable_model.appendRow({name: variable, value: value});
-                    for (var i = 0; i < location_model.rowCount(); i++) {
-                        location_model.data(location_model.index(i, 0), roles.flow).appendRow({
-                            var: variable,
-                            flow: ""
-                        });
+                    for (var i = 1; i <= location_model.rowCount(); i++) {
+                        Julia.append_flow(i, variable);
                     }
-                    for (var i = 0; i < edge_model.rowCount(); i++) {
-                        edge_model.data(edge_model.index(i, 0), roles.jump).appendRow({
-                            var: variable,
-                            jump: ""
-                        });
+                    for (var i = 1; i <= edge_model.rowCount(); i++) {
+                        Julia.append_jump(i, variable);
                     }
-                    variable_name_text_field.placeholderText = "Enter name";
-                    variable_value_text_field.placeholderText = "Enter value";
-                    variable_name_text_field.background.border.color = "black";
-                    variable_value_text_field.background.border.color = "black";
+                    variable_name_text_field.text = "";
+                    variable_value_text_field.text = "";
+                    variable_name_text_field.placeholderText = variable_name_text_field.default_text;
+                    variable_value_text_field.placeholderText = variable_value_text_field.default_text;
+                    variable_name_text_field.placeholderTextColor = variable_name_text_field.default_color;
+                    variable_value_text_field.placeholderTextColor = variable_value_text_field.default_color;
+                    return;
                 }
                 else {
-                    variable_value_text_field.placeholderText = "Invalid number";
-                    variable_value_text_field.background.border.color = "red";
+                    variable_value_text_field.placeholderText = "Invalid real number";
+                    variable_value_text_field.placeholderTextColor = variable_value_text_field.error_color;
                 }
             }
             else {
-                variable_name_text_field.placeholderText = "Name in use";
-                variable_name_text_field.background.border.color = "red";
+                variable_name_text_field.placeholderText = "Name is already used";
+                variable_name_text_field.placeholderTextColor = variable_name_text_field.error_color;
             }
         }
         else {
             variable_name_text_field.placeholderText = "Invalid name";
-            variable_name_text_field.background.border.color = "red";
+            variable_name_text_field.placeholderTextColor = variable_name_text_field.error_color;
         }
-        variable_name_text_field.text = "";
-        variable_value_text_field.text = "";
     }
 
-    Text {
+    TitleText {
+        id: variable_text
         width: parent.width
         text: "Variables"
-        color: "white"
     }
 
     // Property name row
     Row {
 
+        id: property_row
         width: parent.width - parent.spacing - variable_button.width
         spacing: 10
 
-        Text {
+        SubtitleText {
             width: (parent.width - parent.spacing) / 2
             horizontalAlignment: Text.AlignLeft
             text: "Name"
-            color: "white"
         }
-        Text {
+
+        SubtitleText {
             width: (parent.width - parent.spacing) / 2
             horizontalAlignment: Text.AlignLeft
             text: "Initial value"
-            color: "white"
         }
     }
 
@@ -99,7 +95,7 @@ Column {
 
         id: variable_list
         width: parent.width
-        height: Math.min(contentHeight, 100)
+        height: parent.height - 3 * parent.spacing - variable_text.height - property_row.height - variable_input_row.height
         clip: true
 
         model: variable_model
@@ -109,45 +105,29 @@ Column {
             spacing: 10
 
             // Variable name
-            Text {
+            DataText {
                 width: (parent.width - 2 * parent.spacing - variable_button.width) / 2
                 horizontalAlignment: Text.AlignLeft
                 text: model.name
-                color: "white"
             }
 
             // Variable value
-            Text {
+            DataText {
                 width: (parent.width - 2 * parent.spacing - variable_button.width) / 2
                 horizontalAlignment: Text.AlignLeft
                 text: model.value
-                color: "white"
             }
 
             // Remove variable button
-            Button {
-                text: "-"
-                height: parent.height
+            RemoveButton {
                 onClicked: {
                     // Remove variable from flows
-                    for (var i = 0; i < location_model.rowCount(); i++) {
-                        var flow = location_model.data(location_model.index(i, 0), roles.flow);
-                        for (var j = 0; j < flow.rowCount(); j++) {
-                            if (flow.data(flow.index(j, 0), roles.flow_variable_name) == model.name) {
-                                flow.removeRow(j);
-                                break;
-                            }
-                        }
+                    for (var i = 1; i <= location_model.rowCount(); i++) {
+                        Julia.remove_flow(i, index + 1);
                     }
                     // Remove variable from jumps
-                    for (var i = 0; i < edge_model.rowCount(); i++) {
-                        var jump = edge_model.data(edge_model.index(i, 0), roles.jump);
-                        for (var j = 0; j < jump.rowCount(); j++) {
-                            if (jump.data(jump.index(j, 0), roles.jump_variable_name) == model.name) {
-                                jump.removeRow(j);
-                                break;
-                            }
-                        }
+                    for (var i = 1; i <= edge_model.rowCount(); i++) {
+                        Julia.remove_jump(i, index + 1);
                     }
                     variable_model.removeRow(index);
                 }
@@ -156,7 +136,7 @@ Column {
 
         ScrollBar.vertical: ScrollBar {
             active: true
-            policy: ScrollBar.AsNeeded
+            policy: ScrollBar.AlwaysOn
         }
 
     }
@@ -164,54 +144,35 @@ Column {
     // Add variable row
     Row {
 
+        id: variable_input_row
         width: parent.width
         spacing: 10
 
         // Variable name input field
-        TextField {
+        InputField {
             id: variable_name_text_field
             width: (parent.width - 2 * parent.spacing - variable_button.width) / 2
-            placeholderText: "Enter name"
-
-            background: Rectangle {
-                color: "black"
-                border.width: 1
-            }
+            default_text: "Enter variable name"
 
             onAccepted: {
                 variables.add_variable(variable_name_text_field.text, variable_value_text_field.text);
-            }
-            onActiveFocusChanged: {
-                placeholderText = "Enter name";
-                background.border.color = "black";
             }
         }
 
         // Variable value input field
-        TextField {
+        InputField {
             id: variable_value_text_field
             width: (parent.width - 2 * parent.spacing - variable_button.width) / 2
-            placeholderText: "Enter value"
-
-            background: Rectangle {
-                color: "black"
-                border.width: 1
-            }
+            default_text: "Enter variable value"
 
             onAccepted: {
                 variables.add_variable(variable_name_text_field.text, variable_value_text_field.text);
             }
-            onActiveFocusChanged: {
-                placeholderText = "Enter value";
-                background.border.color = "black";
-            }
         }
 
         // Add variable button
-        Button {
+        AddButton {
             id: variable_button
-            Layout.fillHeight: false
-            text: "+"
             onClicked: {
                 variables.add_variable(variable_name_text_field.text, variable_value_text_field.text);
             }

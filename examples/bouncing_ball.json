@@ -16,7 +16,8 @@
         "initial_valuation": [
             {"pos": 1000},
             {"spd": 0},
-            {"acc": -10}
+            {"acc": -10},
+            {"dissipation": 0.9}
         ],
         "agents": ["A"],
         "actions": ["up"],
@@ -32,23 +33,24 @@
                     "A": "up"
                 },
                 "jump": [
-                    {"spd": "- spd"}
+                    {"spd": "- dissipation * spd"}
                 ]
             }
         ],
         "triggers": 
         {
-            "A": ["pos <= 0"]
+            "A": ["pos == 0"]
         }
     },
     "termination-conditions": {
         "time-bound": 1000.0,
-        "max-steps": 6,
-        "state-formula": "false"
+        "max-steps": 20,
+        "state-formula": "pos == 0 && spd^2 < 0.01"
     },
     "queries": 
     [
         "<<A>> F pos < 0 || pos > 1000",
-        "[[A]] G pos >= 0"
+        "[[A]] G pos >= 0",
+        "[[A]] F pos == 700 && spd > 0"
     ]
 }
