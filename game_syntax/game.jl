@@ -5,8 +5,8 @@ struct Game
     locations::Vector{Location}
     initial_location::Location
     initial_valuation::Valuation
-    agents:: Set{Agent}
-    actions::Set{Action}
+    agents:: Vector{Agent}
+    actions::Vector{Action}
     edges:: Vector{Edge}
     triggers:: Dict{Agent, Vector{Constraint}}
 end
@@ -14,8 +14,8 @@ end
 function Game(  locations::Vector{Location}, 
                 initial_location::Location, 
                 initial_valuation::Valuation, 
-                agents::Set{Agent}, 
-                actions::Set{Action},
+                agents::Vector{Agent}, 
+                actions::Vector{Action},
                 edges::Vector{Edge},
                 triggers:: Dict{Agent, Vector{Constraint}},
                 initiate::Bool)::Game

@@ -146,12 +146,12 @@ function to_logic(node::Quantifier)::Strategy_Formula
     end
 end
 
-function to_logic(node::Agents)::Set{Agent}
+function to_logic(node::Agents)::Vector{Agent}
     return to_logic(node.agents)
 end
 
-function to_logic(node::AgentList)::Set{Agent}
-    agents::Set{Agent} = Set([])
+function to_logic(node::AgentList)::Vector{Agent}
+    agents::Vector{Agent} = Vector([])
     for agent in node.agents
         push!(agents, Agent(Symbol(agent)))
     end

@@ -18,7 +18,7 @@ Base.:(==)(x::Strategy_to_State, y::Strategy_to_State) = (
 )
 
 struct Exist_Always <: Strategy_Formula
-    agents::Set{Agent}
+    agents::Vector{Agent}
     formula::Strategy_Formula
 end
 
@@ -29,7 +29,7 @@ Base.:(==)(x::Exist_Always, y::Exist_Always) = (
 )
 
 struct Exist_Eventually <: Strategy_Formula
-    agents::Set{Agent}
+    agents::Vector{Agent}
     formula::Strategy_Formula
 end
 
@@ -40,7 +40,7 @@ Base.:(==)(x::Exist_Eventually, y::Exist_Eventually) = (
 )
 
 struct All_Always <: Strategy_Formula
-    agents::Set{Agent}
+    agents::Vector{Agent}
     formula::Strategy_Formula
 end
 
@@ -51,7 +51,7 @@ Base.:(==)(x::All_Always, y::All_Always) = (
 )
 
 struct All_Eventually <: Strategy_Formula
-    agents::Set{Agent}
+    agents::Vector{Agent}
     formula::Strategy_Formula
 end
 
@@ -128,10 +128,10 @@ end
 struct Strategy_Deadlock <: Strategy_Formula
 end
 
-function get_all_constraints(formula::State_Formula)::Set{Constraint}
+function get_all_constraints(formula::State_Formula)::Vector{Constraint}
     @match formula begin
-        State_Location(_) => Set{Constraint}()
-        State_Constraint(constraint) => Set([constraint])
+        State_Location(_) => Vector{Constraint}()
+        State_Constraint(constraint) => Vector([constraint])
         State_And(left, right) => get_all_constraints(left) ∪ get_all_constraints(right)
         State_Or(left, right) => get_all_constraints(left) ∪ get_all_constraints(right)
         State_Not(subformula) => get_all_constraints(subformula)
@@ -139,7 +139,7 @@ function get_all_constraints(formula::State_Formula)::Set{Constraint}
     end
 end
 
-function get_all_constraints(formula::Strategy_Formula)::Set{Constraint}
+function get_all_constraints(formula::Strategy_Formula)::Vector{Constraint}
     @match formula begin
         Strategy_to_State(f) => get_all_constraints(f)
         Exist_Always(_, f) => get_all_constraints(f)
@@ -150,11 +150,11 @@ function get_all_constraints(formula::Strategy_Formula)::Set{Constraint}
         Strategy_Or(left, right) => get_all_constraints(left) ∪ get_all_constraints(right)
         Strategy_Not(f) => get_all_constraints(f)
         Strategy_Imply(left, right) => get_all_constraints(left) ∪ get_all_constraints(right)
-        Strategy_Deadlock() => Set{Constraint}()
+        Strategy_Deadlock() => Vector{Constraint}()
     end
 end
 
-function get_all_constraints(formulae::Vector{Logic_formula})::Set{Constraint}
+function get_all_constraints(formulae::Vector{Logic_formula})::Vector{Constraint}
     return union_safe([get_all_constraints(formula) for formula in formulae])
 end
 

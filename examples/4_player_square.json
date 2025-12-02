@@ -3,6 +3,14 @@
         "name":"Bouncing Ball Game",
         "locations": 
         [
+
+            {
+                "name": "initial",
+                "invariant": "",
+                "flow": [
+                ],
+                "initial": true
+            },
             {
                 "name": "A_Throwing",
                 "invariant": "-5 <= x && x <= 5 && -5 <= y && y <= 5",
@@ -10,7 +18,7 @@
                     {"x": "dir_x"},
                     {"y": "dir_y"}
                 ],
-                "initial": true
+                "initial": false
             },
             {
                 "name": "B_Throwing",
@@ -42,15 +50,46 @@
         ],
         "positions":"A(-5,-5);B(5,-5);C(5,5);D(-5,5)",
         "initial_valuation": [
-            {"x": 0},
+            {"x": -5},
             {"y": -5},
-            {"dir_x": 1},
-            {"dir_y": 0}
+            {"dir_x": 0},
+            {"dir_y": 0},
+            {"shooter": 0}
         ],
         "agents": ["A", "B", "C", "D"],
         "actions": ["R", "L"],
         "edges": 
         [
+            {
+                "name": "init_A_B",
+                "start_location": "initial",
+                "target_location": "A_Throwing",
+                "guard": "(x + 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "A": "R"
+                },
+                "jump": [ 
+                    {"dir_x": "1"},
+                    {"dir_y": "0"},
+                    {"shooter": "1"}
+                ]
+            },
+            {
+                "name": "init_A_D",
+                "start_location": "initial",
+                "target_location": "A_Throwing",
+                "guard": "(x + 5)^2 + (y + 5)^2 <= 1",
+                "decision": 
+                {
+                    "A": "L"
+                },
+                "jump": [ 
+                    {"dir_x": "0"},
+                    {"dir_y": "1"},
+                    {"shooter": "1"}
+                ]
+            },
             {
                 "name": "D_A_B",
                 "start_location": "D_Throwing",
@@ -62,7 +101,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "1"},
-                    {"dir_y": "0"}
+                    {"dir_y": "0"},
+                    {"shooter": "1"}
                 ]
             },
             {
@@ -76,7 +116,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "0"},
-                    {"dir_y": "1"}
+                    {"dir_y": "1"},
+                    {"shooter": "1"}
                 ]
             },
             {
@@ -90,7 +131,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "1"},
-                    {"dir_y": "0"}
+                    {"dir_y": "0"},
+                    {"shooter": "1"}
                 ]
             },
             {
@@ -104,7 +146,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "0"},
-                    {"dir_y": "1"}
+                    {"dir_y": "1"},
+                    {"shooter": "1"}
                 ]
             },
 
@@ -121,7 +164,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "0"},
-                    {"dir_y": "1"}
+                    {"dir_y": "1"},
+                    {"shooter": "2"}
                 ]
             },
             {
@@ -135,7 +179,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "-1"},
-                    {"dir_y": "0"}
+                    {"dir_y": "0"},
+                    {"shooter": "2"}
                 ]
             },
             {
@@ -149,7 +194,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "0"},
-                    {"dir_y": "1"}
+                    {"dir_y": "1"},
+                    {"shooter": "2"}
                 ]
             },
             {
@@ -163,7 +209,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "-1"},
-                    {"dir_y": "0"}
+                    {"dir_y": "0"},
+                    {"shooter": "2"}
                 ]
             },
 
@@ -180,7 +227,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "-1"},
-                    {"dir_y": "0"}
+                    {"dir_y": "0"},
+                    {"shooter": "3"}
                 ]
             },
             {
@@ -194,7 +242,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "0"},
-                    {"dir_y": "-1"}
+                    {"dir_y": "-1"},
+                    {"shooter": "3"}
                 ]
             },
             {
@@ -208,7 +257,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "-1"},
-                    {"dir_y": "0"}
+                    {"dir_y": "0"},
+                    {"shooter": "3"}
                 ]
             },
             {
@@ -222,7 +272,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "0"},
-                    {"dir_y": "-1"}
+                    {"dir_y": "-1"},
+                    {"shooter": "3"}
                 ]
             },
 
@@ -239,7 +290,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "0"},
-                    {"dir_y": "-1"}
+                    {"dir_y": "-1"},
+                    {"shooter": "4"}
                 ]
             },
             {
@@ -253,7 +305,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "1"},
-                    {"dir_y": "0"}
+                    {"dir_y": "0"},
+                    {"shooter": "4"}
                 ]
             },
             {
@@ -267,7 +320,8 @@
                 },
                 "jump": [ 
                     {"dir_x": "0"},
-                    {"dir_y": "-1"}
+                    {"dir_y": "-1"},
+                    {"shooter": "4"}
                 ]
             },
             {
@@ -281,16 +335,17 @@
                 },
                 "jump": [ 
                     {"dir_x": "1"},
-                    {"dir_y": "0"}
+                    {"dir_y": "0"},
+                    {"shooter": "4"}
                 ]
             }
         ],
         "triggers": 
         {
-            "A": ["x == -5 && y == -5"],
-            "B": ["x == 5 && y == -5"],
-            "C": ["x == 5 && y == 5"],
-            "D": ["x == -5 && y == 5"]
+            "A": ["x == -5 && y == -5 && shooter != 1"],
+            "B": ["x == 5  && y == -5 && shooter != 2"],
+            "C": ["x == 5  && y == 5  && shooter != 3"],
+            "D": ["x == -5 && y == 5  && shooter != 4"]
         }
 
     },

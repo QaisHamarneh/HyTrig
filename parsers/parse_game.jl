@@ -11,25 +11,24 @@ function parse_game(json_file)
         json_string = read(json_file, String)
         FileDict = JSON3.read(json_string)
         GameDict = FileDict["Game"]
-        agents = Set{Agent}([Symbol(agent) for agent in GameDict["agents"]])
-        agents_names = Set{String}([agent for agent in GameDict["agents"]])
-        actions = Set{Action}([Symbol(action) for action in GameDict["actions"]])
-        initial_valuation::Valuation = Dict{Symbol, Float64}()
+        agents = Vector{Agent}([Symbol(agent) for agent in GameDict["agents"]])
+        agents_names = [string(agent) for agent in GameDict["agents"]]
+        actions = Vector{Action}([Symbol(action) for action in GameDict["actions"]])
+        initial_valuation::Valuation = OrderedDict{Symbol, Float64}()
         if ! isempty(GameDict["initial_valuation"])
             initial_valuation = OrderedDict(first(keys(init)) => first(values(init)) for init in GameDict["initial_valuation"])
         end
-        variables = Set{String}([String(var) for var in keys(initial_valuation)])
+        variables = Vector{String}([String(var) for var in keys(initial_valuation)])
         locations = Location[]
-        locations_names = Set{String}()
+        locations_names = Vector{String}()
         initial_location = nothing
         for loc in GameDict["locations"]
             name = Symbol(loc["name"])
             push!(locations_names, loc["name"])
-            invariant::Constraint = parse(loc["invariant"], Bindings(Set([]), Set([]), variables), constraint)
-            flow::ReAssignment = Dict{Symbol, ExprLike}()
-            if ! isempty(loc["flow"])
-                flow = Dict(first(keys(flow)) => parse(first(values(flow)), Bindings(Set([]), Set([]), variables), expression)
-                                            for flow in loc["flow"])
+            invariant::Constraint = parse(loc["invariant"], Bindings([], [], variables), constraint)
+            flow::ReAssignment = OrderedDict{Symbol, ExprLike}()
+            for reassinment in loc["flow"]
+                flow[first(keys(reassinment))] = parse(first(values(reassinment)), Bindings([], [], variables), expression)
             end
             location = Location(name, invariant, flow)
             if haskey(loc, "initial") && loc["initial"]
@@ -54,16 +53,15 @@ function parse_game(json_file)
             if length(decisions) != 1
                 error("Edge $(name) must have exactly one decision (agent-action pair). Found: ", decisions)
             end
-            guard::Constraint = parse(edge["guard"], Bindings(Set([]), Set([]), variables), constraint)
-            jump::ReAssignment = Dict{Symbol, ExprLike}()
-            if ! isempty(edge["jump"])
-                jump = Dict(first(keys(jump)) => parse(first(values(jump)), Bindings(Set([]), Set([]), variables), expression)
-                            for jump in edge["jump"])
+            guard::Constraint = parse(edge["guard"], Bindings([], [], variables), constraint)
+            jump::ReAssignment = OrderedDict{Symbol, ExprLike}()
+            for reassinment in edge["jump"]
+                jump[first(keys(reassinment))] = parse(first(values(reassinment)), Bindings([], [], variables), expression)
             end
             push!(edges, Edge(name, start_location, target_location, guard, decisions[1], jump))
         end
         triggers::Dict{Agent, Vector{Constraint}} = Dict(Symbol(agent) => 
-            Constraint[parse(trigger, Bindings(Set([]), Set([]), variables), constraint)
+            Constraint[parse(trigger, Bindings([], [], variables), constraint)
                 for trigger in agents_triggers] 
                 for (agent, agents_triggers) in GameDict["triggers"])
 

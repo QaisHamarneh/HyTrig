@@ -74,7 +74,7 @@ end
 
 
 if !isdefined(Main, :ReAssignment)
-    const ReAssignment = Dict{Variable, <:ExprLike}
+    const ReAssignment = OrderedDict{Variable, ExprLike}
 end
 
 function evaluate(expr::ExprLike, valuation::Valuation)::Float64
@@ -101,7 +101,7 @@ function str(expr::ExprLike)::String
     @match expr begin
         Const(value) => "$value"
         Var(name) => String(name)
-        Neg(expr1) => "- $(str(expr1))"
+        Neg(expr1) => "(- $(str(expr1)))"
         Add(left, right) => "($(str(left)) + $(str(right)))"
         Mul(left, right) => "($(str(left)) * $(str(right)))"
         Sub(left, right) => "($(str(left)) - $(str(right)))"

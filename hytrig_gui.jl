@@ -188,9 +188,9 @@ function is_valid_formula(formula, level)::Bool
         return false
     end
 
-    agents = Set(collect(x.name for x in agent_list))
-    locations = Set(collect(x.name for x in location_list))
-    variables = Set(collect(x.name for x in variable_list))
+    agents = collect(x.name for x in agent_list)
+    locations = collect(x.name for x in location_list)
+    variables = collect(x.name for x in variable_list)
 
     try
         parse(formula, Bindings(agents, locations, variables), level)
@@ -207,9 +207,9 @@ Verify the current hybrid game with triggers.
 """
 function verify()
     bindings = Bindings(
-        Set(collect(x.name for x in agent_list)),
-        Set(collect(x.name for x in location_list)),
-        Set(collect(x.name for x in variable_list))
+        collect(x.name for x in agent_list),
+        collect(x.name for x in location_list),
+        collect(x.name for x in variable_list)
     )
 
     locations::Vector{Location} = []
@@ -219,7 +219,7 @@ function verify()
             Location(
                 Symbol(loc.name),
                 parse(loc.inv, bindings, constraint),
-                Dict{Symbol, ExprLike}([(Variable(loc.flow[i].var) => parse(loc.flow[i].flow, bindings, expression)) for i in 1:length(loc.flow)])
+                OrderedDict{Symbol, ExprLike}([(Variable(loc.flow[i].var) => parse(loc.flow[i].flow, bindings, expression)) for i in 1:length(loc.flow)])
             )
         )
     end
@@ -230,8 +230,8 @@ function verify()
     initial_valuation::Valuation = Valuation(
         Variable(var.name) => Base.parse(Float64, var.value) for var in variable_list
     )
-    agents::Vector{Agent} = Vector(Agent(agent.name) for agent in agent_list)
-    actions::Vector{Action} = Vector(Action(action.name) for action in action_list)
+    agents::Vector{Agent} = [Agent(agent.name) for agent in agent_list]
+    actions::Vector{Action} = [Action(action.name) for action in action_list]
     edges::Vector{Edge} = [Edge(
         Symbol(edge.name),
         locations[findfirst(loc -> loc.name == Symbol(edge.source), locations)],

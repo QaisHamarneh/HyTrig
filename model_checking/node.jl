@@ -54,7 +54,7 @@ function print_tree(root::Node)
             end
         ActiveNode(_, decision, trigger, _, level, children) =>
             begin
-                res *= "\n$level- Active - Agent: $(decision.first) - Action: $(decision.second) / $(str(trigger)) - Location: $(root.config.location.name)\nValuation: $(root.config.valuation), - Time: $(root.config.global_clock)\nChildren: $(length(children))"
+                res *= "\n$level- Active - Agent: $(decision.first) - Action: $(decision.second) / $(str(trigger)) - Location: $(root.config.location.name)\nValuation: $(round5(root.config.valuation)), - Time: $(round5(root.config.global_clock))\nChildren: $(length(children))"
                 res *= "\n--------------\n"
                 for child in children
                     res *= print_tree(child)
@@ -66,7 +66,7 @@ function print_tree(root::Node)
                     res *= "\n$level- Passive - Location: $(root.config.location.name)\nValuation: $(root.config.valuation), - Time: $(root.config.global_clock)"
                 res *= "\n--------------\n"
                 else
-                    res *= "\n$level- Passive - Agent: $(decision.first) - Trigger: $(str(decision.second)) - Location: $(root.config.location.name)\nValuation: $(root.config.valuation), - Time: $(root.config.global_clock)\nChildren: $(length(children))"
+                    res *= "\n$level- Passive - Agent: $(decision.first) - Trigger: $(str(decision.second)) - Location: $(root.config.location.name)\nValuation: $(round5(root.config.valuation)), - Time: $(round5(root.config.global_clock))\nChildren: $(length(children))"
                 res *= "\n--------------\n"
                 end
                 for child in children
@@ -77,6 +77,9 @@ function print_tree(root::Node)
             begin
                 res *= "\n$level- End - Location: $(root.config.location.name)\nValuation: $(root.config.valuation), - Time: $(root.config.global_clock)"
                 res *= "\n--------------\n"
+                for child in children
+                    res *=print_tree(child)
+                end
             end
     end
     return res
@@ -151,7 +154,7 @@ function sort_children_by_clock!(root::Node)
     sort!(root.children, by = child -> child_time(child))
 end
 
-function sort_children_by_clock_agent(root::Node, agents::Set{Agent})
+function sort_children_by_clock_agent(root::Node, agents::Vector{Agent})
     # sorts children by global clock, and if two children have the same clock, the one with the agent's decision comes last
     sort(root.children, by = child -> (child_time(child), child.reaching_decision.first in agents))
 end
